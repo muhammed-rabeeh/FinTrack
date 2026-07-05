@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -54,7 +55,7 @@
             color: var(--text-main);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             transition: background-color 0.3s, color 0.3s;
-            padding-bottom: 80px; /* For mobile nav */
+            padding-bottom: 80px;
         }
 
         /* Glassmorphism Classes */
@@ -217,13 +218,13 @@
                         <div class="glass-card p-4 h-100">
                             <p class="text-muted mb-1 fw-semibold">Account Balance</p>
                             <h2 class="mb-0 fw-bold currency-symbol text-primary" id="dashTotalBalance">0</h2>
-                            <small class="text-muted mt-2 d-block">Includes initial balance & income</small>
+                            <small class="text-muted mt-2 d-block">Includes balance & savings</small>
                         </div>
                     </div>
                     <!-- Remaining Budget -->
                     <div class="col-md-6 col-lg-3">
                         <div class="glass-card p-4 h-100">
-                            <p class="text-muted mb-1 fw-semibold">Remaining Budget</p>
+                            <p class="text-muted mb-1 fw-semibold">Current Budget Left</p>
                             <h2 class="mb-0 fw-bold currency-symbol" id="dashRemainingBudget">0</h2>
                             <div class="progress mt-3" style="height: 8px;">
                                 <div id="budgetProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%;"></div>
@@ -240,18 +241,18 @@
                             <small class="text-muted mt-2 d-block" id="dashDaysRemaining">0 days remaining</small>
                         </div>
                     </div>
-                    <!-- Total Expenses -->
+                    <!-- Monthly Expenses -->
                     <div class="col-md-6 col-lg-3">
-                        <div class="glass-card p-4 h-100">
-                            <p class="text-muted mb-1 fw-semibold">Total Expenses</p>
-                            <h2 class="mb-0 fw-bold currency-symbol text-danger" id="dashTotalExpenses">0</h2>
-                            <p class="mb-0 mt-2 fs-6 badge bg-info text-dark" id="spendingStatusBadge">Status: Checking...</p>
+                        <div class="glass-card p-4 h-100 border-info border-opacity-50">
+                            <p class="text-muted mb-1 fw-semibold">This Month's Spend</p>
+                            <h2 class="mb-0 fw-bold currency-symbol text-danger" id="dashMonthExpenses">0</h2>
+                            <small class="text-muted mt-2 d-block"><i class="bi bi-arrow-repeat me-1"></i>Resets every 1st of month</small>
                         </div>
                     </div>
                 </div>
 
                 <div class="row g-4">
-                    <!-- Health Score & Savings -->
+                    <!-- Health Score, Savings, and Overspending -->
                     <div class="col-lg-4">
                         <div class="glass-card p-4 mb-4 text-center">
                             <h5 class="fw-bold mb-4">Financial Health Score</h5>
@@ -262,7 +263,7 @@
                             <p class="text-muted small mb-0" id="healthScoreDesc">Great job managing your budget!</p>
                         </div>
 
-                        <div class="glass-card p-4">
+                        <div class="glass-card p-4 mb-4">
                             <h5 class="fw-bold mb-3">Savings Tracker</h5>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-muted">Goal: <span class="currency-symbol" id="dashSavingsGoal">0</span></span>
@@ -271,7 +272,17 @@
                             <div class="progress" style="height: 10px;">
                                 <div id="savingsProgressBar" class="progress-bar bg-primary" role="progressbar" style="width: 0%;"></div>
                             </div>
-                            <button class="btn btn-sm btn-outline-primary mt-3 w-100" onclick="addSavingsPrompt()">+ Add to Savings</button>
+                            <p class="small text-muted mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Unspent budget is added here after rollover.</p>
+                        </div>
+                        
+                        <!-- Overspending Penalty Block -->
+                        <div class="glass-card p-4 border-danger border-opacity-25" style="background: rgba(220, 53, 69, 0.05);">
+                            <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Overspending Penalty</h5>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Total Overspent<br><small>(Historical)</small></span>
+                                <h3 class="fw-bold text-danger currency-symbol mb-0" id="dashOverspentAmount">0</h3>
+                            </div>
+                            <p class="small text-muted mt-2 mb-0">Accumulated automatically when spending exceeds your budget at the end of a period.</p>
                         </div>
                     </div>
 
@@ -353,7 +364,7 @@
                     </div>
                     <div id="noExpensesMsg" class="text-center py-5 d-none text-muted">
                         <i class="bi bi-receipt fs-1 d-block mb-2"></i>
-                        <p>No expenses found. Click 'Add Expense' to get started.</p>
+                        <p>No expenses found for this period. Click 'Add Expense' to log one.</p>
                     </div>
                 </div>
             </div>
@@ -363,7 +374,7 @@
                 <div class="row g-4">
                     <div class="col-lg-6">
                         <div class="glass-card p-4 h-100">
-                            <h5 class="fw-bold mb-4 text-center">Expenses by Category</h5>
+                            <h5 class="fw-bold mb-4 text-center">Expenses by Category <br><small class="text-muted fw-normal">(Current Budget Period)</small></h5>
                             <div class="chart-container">
                                 <canvas id="categoryChart"></canvas>
                             </div>
@@ -371,7 +382,7 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="glass-card p-4 h-100">
-                            <h5 class="fw-bold mb-4 text-center">Budget vs Actual Spend</h5>
+                            <h5 class="fw-bold mb-4 text-center">Current Budget vs Actual</h5>
                             <div class="chart-container">
                                 <canvas id="budgetBarChart"></canvas>
                             </div>
@@ -408,7 +419,8 @@
                                     <input type="number" class="form-control" id="setSavingsGoal" min="0">
                                 </div>
                                 <hr class="my-4">
-                                <h6 class="fw-bold mb-3">Current Budget Period</h6>
+                                <h6 class="fw-bold mb-3">Current Budget Period <span class="badge bg-primary ms-2">Auto-renews</span></h6>
+                                <p class="small text-muted mb-3">When the end date passes, unspent funds are moved to savings and overspending is recorded. Dates will auto-renew to the next month.</p>
                                 <div class="mb-3">
                                     <label class="form-label text-muted">Total Budget Amount (₹)</label>
                                     <input type="number" class="form-control form-control-lg border-primary" id="setBudgetAmount" min="0" required>
@@ -547,10 +559,10 @@
 
     <script>
         /* ==============================================================
-           PWA SERVICE WORKER REGISTRATION (In-file Blob Implementation)
+           PWA SERVICE WORKER REGISTRATION 
            ============================================================== */
         const swScript = `
-            const CACHE_NAME = 'fintrack-v1';
+            const CACHE_NAME = 'fintrack-v2';
             self.addEventListener('install', event => {
                 event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['/'])));
             });
@@ -592,12 +604,19 @@
             monthlyIncome: 0,
             savingsGoal: 0,
             savedAmount: 0,
+            overspentAmount: 0,
+            processedBudgets: [],
             budget: { amount: 0, startDate: '', endDate: '' },
             expenses: [],
             theme: 'light'
         };
 
         let appData = JSON.parse(localStorage.getItem('finTrackData')) || defaultData;
+        
+        // Ensure new fields exist for legacy users
+        appData.overspentAmount = appData.overspentAmount || 0;
+        appData.processedBudgets = appData.processedBudgets || [];
+
         let charts = { category: null, budget: null, trend: null };
 
         // Icons mapping for categories
@@ -612,10 +631,7 @@
             'Others': '<i class="bi bi-box text-dark"></i>'
         };
 
-        // Utility: Format Currency
         const formatMoney = (amount) => Number(amount).toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
-        
-        // Utility: Get Date String (YYYY-MM-DD)
         const getTodayStr = () => new Date().toISOString().split('T')[0];
 
         // Init Application
@@ -631,6 +647,9 @@
                 appData.budget.endDate = lastDay.toISOString().split('T')[0];
             }
             
+            // Trigger rollover logic check on startup
+            processRollovers();
+
             // Populate Settings Form
             document.getElementById('setInitialBalance').value = appData.initialBalance || '';
             document.getElementById('setIncome').value = appData.monthlyIncome || '';
@@ -640,7 +659,6 @@
             document.getElementById('setEndDate').value = appData.budget.endDate;
             document.getElementById('expDate').value = getTodayStr();
             
-            // Set month filter default to current month
             document.getElementById('filterMonth').value = getTodayStr().substring(0,7);
 
             checkSetup();
@@ -650,6 +668,59 @@
         function saveData() {
             localStorage.setItem('finTrackData', JSON.stringify(appData));
             updateAll();
+        }
+
+        /* ==============================================================
+           SMART BUDGET ROLLOVER & PENALTY SYSTEM
+           ============================================================== */
+        function processRollovers() {
+            const today = getTodayStr();
+            const budgetKey = `${appData.budget.startDate}_${appData.budget.endDate}`;
+
+            // If budget end date has passed and we haven't processed this period yet
+            if (today > appData.budget.endDate && appData.budget.amount > 0 && !appData.processedBudgets.includes(budgetKey)) {
+                
+                // 1. Calculate how much was spent during the old period
+                let spentInPeriod = 0;
+                appData.expenses.forEach(exp => {
+                    if (exp.date >= appData.budget.startDate && exp.date <= appData.budget.endDate) {
+                        spentInPeriod += Number(exp.amount);
+                    }
+                });
+
+                // 2. Evaluate savings vs overspending
+                const diff = appData.budget.amount - spentInPeriod;
+                if (diff > 0) {
+                    appData.savedAmount += diff; // Add to savings
+                    setTimeout(() => showToast('Budget Rolled Over', `Period ended! Unspent ₹${formatMoney(diff)} moved to your savings.`, 'success'), 1000);
+                } else if (diff < 0) {
+                    appData.overspentAmount += Math.abs(diff); // Add to penalty
+                    setTimeout(() => showToast('Overspending Alert', `Budget period ended. You overspent by ₹${formatMoney(Math.abs(diff))}!`, 'danger'), 1000);
+                }
+
+                // 3. Mark old period as processed
+                appData.processedBudgets.push(budgetKey);
+                
+                // 4. Auto-advance budget to current month
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+                
+                appData.budget.startDate = firstDay;
+                appData.budget.endDate = lastDay;
+                // Note: We deliberately KEEP appData.budget.amount the same so it renews automatically.
+
+                // Update settings UI dynamically
+                const sDateInput = document.getElementById('setStartDate');
+                const eDateInput = document.getElementById('setEndDate');
+                if(sDateInput && eDateInput) {
+                    sDateInput.value = firstDay;
+                    eDateInput.value = lastDay;
+                }
+                
+                // Auto-save changes
+                localStorage.setItem('finTrackData', JSON.stringify(appData));
+            }
         }
 
         function updateAll() {
@@ -673,30 +744,39 @@
         /* ==============================================================
            METRICS & CALCULATIONS
            ============================================================== */
-        let metrics = { totalExp: 0, budgetUsed: 0, remainingBudget: 0, daysRemaining: 0, dailyLimit: 0, balance: 0 };
+        let metrics = { totalExp: 0, budgetExp: 0, currentMonthExp: 0, remainingBudget: 0, daysRemaining: 0, dailyLimit: 0, balance: 0 };
 
         function calculateCoreMetrics() {
             const today = new Date(getTodayStr());
             const endD = new Date(appData.budget.endDate);
             const startD = new Date(appData.budget.startDate);
+            const currentMonthStr = getTodayStr().substring(0, 7); // YYYY-MM
             
-            // Calculate expenses within budget period
             let budgetPeriodExpenses = 0;
             let totalOverallExpenses = 0;
+            let currentMonthExpenses = 0;
             let todayExpenses = 0;
 
             appData.expenses.forEach(exp => {
                 totalOverallExpenses += Number(exp.amount);
+                
+                // Check if in current active budget period
                 const expDate = new Date(exp.date);
                 if (expDate >= startD && expDate <= endD) {
                     budgetPeriodExpenses += Number(exp.amount);
                 }
+                
+                // Check if in current calendar month
+                if (exp.date.startsWith(currentMonthStr)) {
+                    currentMonthExpenses += Number(exp.amount);
+                }
+
                 if (exp.date === getTodayStr()) {
                     todayExpenses += Number(exp.amount);
                 }
             });
 
-            // Days remaining
+            // Days remaining in active budget
             let daysRem = 0;
             if (today <= endD && today >= startD) {
                 const diffTime = Math.abs(endD - today);
@@ -711,10 +791,11 @@
             metrics = {
                 totalOverallExp: totalOverallExpenses,
                 budgetExp: budgetPeriodExpenses,
+                currentMonthExp: currentMonthExpenses,
                 remainingBudget: remBudget,
                 daysRemaining: daysRem,
                 dailyLimit: daysRem > 0 && remBudget > 0 ? (remBudget / daysRem) : 0,
-                balance: Number(appData.initialBalance) + Number(appData.monthlyIncome) - totalOverallExpenses - Number(appData.savedAmount),
+                balance: Number(appData.initialBalance) + Number(appData.monthlyIncome) - totalOverallExpenses, // Total available money historically
                 todayExp: todayExpenses
             };
         }
@@ -726,8 +807,9 @@
             document.getElementById('dashTotalBalance').innerText = formatMoney(metrics.balance);
             document.getElementById('dashRemainingBudget').innerText = formatMoney(metrics.remainingBudget);
             document.getElementById('dashDailyLimit').innerText = formatMoney(metrics.dailyLimit);
-            document.getElementById('dashTotalExpenses').innerText = formatMoney(metrics.totalOverallExp);
+            document.getElementById('dashMonthExpenses').innerText = formatMoney(metrics.currentMonthExp);
             document.getElementById('dashDaysRemaining').innerText = metrics.daysRemaining > 0 ? `${metrics.daysRemaining} days left in budget period` : 'Budget period ended';
+            document.getElementById('dashOverspentAmount').innerText = formatMoney(appData.overspentAmount);
 
             // Budget Progress
             let budgetPct = appData.budget.amount > 0 ? (metrics.budgetExp / appData.budget.amount) * 100 : 0;
@@ -736,10 +818,9 @@
             document.getElementById('budgetPercentageText').innerText = `${budgetPct.toFixed(1)}% used`;
             
             pBar.className = 'progress-bar ';
-            let statusBadge = document.getElementById('spendingStatusBadge');
-            if (budgetPct < 75) { pBar.classList.add('bg-success'); statusBadge.className = 'badge bg-success'; statusBadge.innerText = 'Safe'; }
-            else if (budgetPct < 90) { pBar.classList.add('bg-warning'); statusBadge.className = 'badge bg-warning text-dark'; statusBadge.innerText = 'Warning'; }
-            else { pBar.classList.add('bg-danger'); statusBadge.className = 'badge bg-danger'; statusBadge.innerText = 'Overspending'; }
+            if (budgetPct < 75) { pBar.classList.add('bg-success'); }
+            else if (budgetPct < 90) { pBar.classList.add('bg-warning'); }
+            else { pBar.classList.add('bg-danger'); }
 
             // Savings Progress
             document.getElementById('dashSavingsGoal').innerText = formatMoney(appData.savingsGoal);
@@ -747,7 +828,6 @@
             let savPct = appData.savingsGoal > 0 ? (appData.savedAmount / appData.savingsGoal) * 100 : 0;
             document.getElementById('savingsProgressBar').style.width = `${Math.min(savPct, 100)}%`;
 
-            // Health Score
             calculateHealthScore();
 
             // Recent Transactions
@@ -778,13 +858,14 @@
 
         function calculateHealthScore() {
             let score = 100;
-            if (appData.budget.amount <= 0) { score = 0; } // no budget set
+            if (appData.budget.amount <= 0) { score = 0; } 
             else {
                 if (metrics.remainingBudget < 0) score -= 40;
                 else if (metrics.budgetExp > appData.budget.amount * 0.9) score -= 20;
 
                 if (metrics.todayExp > metrics.dailyLimit && metrics.dailyLimit > 0) score -= 15;
                 if (appData.savingsGoal > 0 && appData.savedAmount >= appData.savingsGoal) score += 10;
+                if (appData.overspentAmount > 0) score -= 15; // Penalty for historical overspending
                 if (metrics.balance < 0) score -= 30;
             }
             
@@ -800,7 +881,7 @@
             if (score >= 80) { hCircle.classList.add('border-success', 'text-success'); hText.innerText = 'Excellent'; hDesc.innerText = "Great job managing your budget!"; }
             else if (score >= 60) { hCircle.classList.add('border-primary', 'text-primary'); hText.innerText = 'Good'; hDesc.innerText = "You're on track, but keep an eye on spending."; }
             else if (score >= 40) { hCircle.classList.add('border-warning', 'text-warning'); hText.innerText = 'Average'; hDesc.innerText = "Nearing budget limits. Time to cut back."; }
-            else { hCircle.classList.add('border-danger', 'text-danger'); hText.innerText = 'Needs Improvement'; hDesc.innerText = "Critical! Overspending detected."; }
+            else { hCircle.classList.add('border-danger', 'text-danger'); hText.innerText = 'Needs Improvement'; hDesc.innerText = "Critical! Heavy spending detected."; }
         }
 
         function updateInsights() {
@@ -817,14 +898,20 @@
             if (appData.budget.amount > 0 && metrics.remainingBudget < (appData.budget.amount * 0.2) && metrics.remainingBudget > 0) {
                 insights.push(`<i class="bi bi-bell text-warning me-2"></i> Only 20% of your budget remaining!`);
             }
+            if (appData.overspentAmount > 0) {
+                insights.push(`<i class="bi bi-shield-exclamation text-danger me-2"></i> You have a historical overspending penalty of ₹${formatMoney(appData.overspentAmount)}.`);
+            }
             
-            // Find highest category
+            // Find highest category for current month
             let catTotals = {};
-            appData.expenses.forEach(e => { catTotals[e.category] = (catTotals[e.category]||0) + Number(e.amount); });
+            const currentMonthStr = getTodayStr().substring(0, 7);
+            appData.expenses.forEach(e => { 
+                if(e.date.startsWith(currentMonthStr)) catTotals[e.category] = (catTotals[e.category]||0) + Number(e.amount); 
+            });
             let highestCat = Object.keys(catTotals).reduce((a, b) => catTotals[a] > catTotals[b] ? a : b, '');
             if (highestCat && catTotals[highestCat] > 0) {
-                let pct = (catTotals[highestCat] / metrics.totalOverallExp) * 100;
-                insights.push(`<i class="bi bi-pie-chart text-info me-2"></i> <strong>${highestCat}</strong> consumes ${pct.toFixed(0)}% of your total spending.`);
+                let pct = (catTotals[highestCat] / metrics.currentMonthExp) * 100;
+                insights.push(`<i class="bi bi-pie-chart text-info me-2"></i> <strong>${highestCat}</strong> consumes ${pct.toFixed(0)}% of your spending this month.`);
             }
 
             if(insights.length === 0) insights.push("<i class='bi bi-check-circle text-success me-2'></i> Your finances are looking stable.");
@@ -866,9 +953,8 @@
             document.getElementById('expId').value = '';
         });
 
-        // Notifications/Alerts logic
         function checkAlerts(exp) {
-            calculateCoreMetrics(); // ensure metrics are up to date
+            calculateCoreMetrics(); 
             if (metrics.todayExp > metrics.dailyLimit && metrics.dailyLimit > 0) {
                 showToast('Warning', `You've exceeded your daily spending limit of ₹${formatMoney(metrics.dailyLimit)}!`, 'warning');
             }
@@ -909,16 +995,15 @@
             
             let filtered = [...appData.expenses];
             
-            // Apply Filters
             const search = document.getElementById('searchExpense').value.toLowerCase();
             const cat = document.getElementById('filterCategory').value;
-            const month = document.getElementById('filterMonth').value; // YYYY-MM
+            const month = document.getElementById('filterMonth').value; 
 
             if(search) filtered = filtered.filter(e => e.description.toLowerCase().includes(search) || e.amount.toString().includes(search));
             if(cat !== 'All') filtered = filtered.filter(e => e.category === cat);
             if(month) filtered = filtered.filter(e => e.date.startsWith(month));
 
-            filtered.sort((a,b) => new Date(b.date) - new Date(a.date)); // Sort newest first
+            filtered.sort((a,b) => new Date(b.date) - new Date(a.date)); 
 
             if(filtered.length === 0) {
                 noData.classList.remove('d-none');
@@ -942,7 +1027,6 @@
             }
         }
 
-        // Filter Event Listeners
         document.getElementById('searchExpense').addEventListener('input', renderExpensesTable);
         document.getElementById('filterCategory').addEventListener('change', renderExpensesTable);
         document.getElementById('filterMonth').addEventListener('change', renderExpensesTable);
@@ -954,9 +1038,8 @@
         });
 
         /* ==============================================================
-           ANALYTICS & CHARTS (Chart.js)
+           ANALYTICS & CHARTS
            ============================================================== */
-        // Re-render charts when tab clicked
         document.getElementById('analytics-tab').addEventListener('shown.bs.tab', renderCharts);
 
         function renderCharts() {
@@ -967,12 +1050,9 @@
             Chart.defaults.color = textColor;
             Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
 
-            // Data prep
             let catTotals = {};
             let dailyTotals = {};
-            
             const monthStr = getTodayStr().substring(0,7);
-            let currentMonthExp = 0;
 
             appData.expenses.forEach(e => {
                 if(e.date >= appData.budget.startDate && e.date <= appData.budget.endDate) {
@@ -980,11 +1060,9 @@
                 }
                 if(e.date.startsWith(monthStr)) {
                     dailyTotals[e.date] = (dailyTotals[e.date] || 0) + Number(e.amount);
-                    currentMonthExp += Number(e.amount);
                 }
             });
 
-            // 1. Category Pie Chart
             if(charts.category) charts.category.destroy();
             const ctxCat = document.getElementById('categoryChart').getContext('2d');
             charts.category = new Chart(ctxCat, {
@@ -1001,7 +1079,6 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
             });
 
-            // 2. Budget Bar Chart
             if(charts.budget) charts.budget.destroy();
             const ctxBud = document.getElementById('budgetBarChart').getContext('2d');
             charts.budget = new Chart(ctxBud, {
@@ -1009,15 +1086,13 @@
                 data: {
                     labels: ['Budget Overview'],
                     datasets: [
-                        { label: 'Total Budget', data: [appData.budget.amount], backgroundColor: 'rgba(13, 110, 253, 0.6)', borderColor: '#0d6efd', borderWidth: 1 },
+                        { label: 'Total Budget Limit', data: [appData.budget.amount], backgroundColor: 'rgba(13, 110, 253, 0.6)', borderColor: '#0d6efd', borderWidth: 1 },
                         { label: 'Spent in Period', data: [metrics.budgetExp], backgroundColor: 'rgba(220, 53, 69, 0.6)', borderColor: '#dc3545', borderWidth: 1 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: gridColor } }, x: { grid: { display: false } } } }
             });
 
-            // 3. Daily Trend Line Chart
-            // Generate all days in current month up to today
             const todayDate = new Date();
             let daysInMonth = [];
             let trendData = [];
@@ -1061,23 +1136,26 @@
             appData.initialBalance = parseFloat(document.getElementById('setInitialBalance').value) || 0;
             appData.monthlyIncome = parseFloat(document.getElementById('setIncome').value) || 0;
             appData.savingsGoal = parseFloat(document.getElementById('setSavingsGoal').value) || 0;
-            appData.budget.amount = parseFloat(document.getElementById('setBudgetAmount').value) || 0;
-            appData.budget.startDate = document.getElementById('setStartDate').value;
-            appData.budget.endDate = document.getElementById('setEndDate').value;
+            
+            const newStartDate = document.getElementById('setStartDate').value;
+            const newEndDate = document.getElementById('setEndDate').value;
+            const newAmt = parseFloat(document.getElementById('setBudgetAmount').value) || 0;
+            
+            // Check if user manually triggered a date change that might reset the rollover lock
+            if (newStartDate !== appData.budget.startDate || newEndDate !== appData.budget.endDate) {
+                appData.budget.amount = newAmt;
+                appData.budget.startDate = newStartDate;
+                appData.budget.endDate = newEndDate;
+                // If they change dates, run rollover check just in case they set a date in the past
+                processRollovers(); 
+            } else {
+                appData.budget.amount = newAmt;
+            }
             
             saveData();
             showToast('Settings Saved', 'Your account and budget have been updated.', 'success');
-            document.getElementById('dashboard-tab').click(); // redirect to dashboard
+            document.getElementById('dashboard-tab').click(); 
         });
-
-        function addSavingsPrompt() {
-            let val = prompt("Enter amount to add to savings (₹):", "0");
-            if(val && !isNaN(val)) {
-                appData.savedAmount = (appData.savedAmount || 0) + parseFloat(val);
-                saveData();
-                showToast('Savings Updated', `Added ₹${formatMoney(val)} to savings.`, 'success');
-            }
-        }
 
         function exportData(type) {
             if(type === 'json') {
@@ -1086,7 +1164,6 @@
             } else if (type === 'csv') {
                 let csvContent = "data:text/csv;charset=utf-8,ID,Date,Description,Category,Method,Amount\n";
                 appData.expenses.forEach(e => {
-                    // Escape quotes in description
                     let desc = e.description.replace(/"/g, '""');
                     csvContent += `${e.id},${e.date},"${desc}",${e.category},${e.method},${e.amount}\n`;
                 });
@@ -1123,7 +1200,7 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // reset input
+            event.target.value = ''; 
         }
 
         function clearAllData() {
@@ -1149,7 +1226,7 @@
                 themeIcon.classList.replace('bi-sun-fill', 'bi-moon-fill');
             }
             if(document.getElementById('analytics-tab').classList.contains('active')){
-                renderCharts(); // Re-render to update text colors
+                renderCharts(); 
             }
         }
 
@@ -1159,7 +1236,6 @@
             applyTheme(appData.theme);
         });
 
-        // Toast Notification System
         function showToast(title, message, type = 'primary') {
             const toastContainer = document.querySelector('.toast-container');
             const id = 'toast' + Date.now();
