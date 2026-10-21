@@ -568,6 +568,68 @@
             --bs-table-border-color: var(--ft-border);
             margin-bottom: 0;
         }
+
+        /* In-App QR Scanner Viewport & Reticle */
+        .ft-qr-scanner-wrap {
+            border: 1px solid var(--ft-border);
+            border-radius: 10px;
+            padding: 12px;
+            background-color: var(--ft-bg);
+        }
+
+        .ft-qr-video-box {
+            position: relative;
+            width: 100%;
+            height: 230px;
+            background-color: #09090B;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ft-qr-video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .ft-qr-reticle {
+            position: absolute;
+            width: 156px;
+            height: 156px;
+            border: 1.5px solid #10B981;
+            border-radius: 12px;
+            box-shadow: 0 0 0 9999px rgba(9, 9, 11, 0.48);
+            pointer-events: none;
+        }
+
+        .ft-qr-scanline {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            height: 2px;
+            background-color: #10B981;
+            animation: qrScanMove 2.1s infinite ease-in-out;
+        }
+
+        @keyframes qrScanMove {
+            0% { top: 12px; opacity: 0.4; }
+            50% { top: 140px; opacity: 1; }
+            100% { top: 12px; opacity: 0.4; }
+        }
+
+        .ft-qr-verified-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border: 1px solid var(--ft-emerald);
+            border-radius: 8px;
+            background-color: rgba(16, 185, 129, 0.06);
+            font-size: 0.8125rem;
+        }
     </style>
 </head>
 <body>
@@ -662,10 +724,15 @@
                             <div class="small ft-secondary-text">Net cash flow across balance &amp; income</div>
                         </div>
                         <div class="text-end">
-                            <span class="ft-metric-label d-block">Quick Pay</span>
-                            <button type="button" class="ft-btn-emerald mt-1" onclick="openExpenseModal('gpay')">
-                                <i class="bi bi-google"></i> Pay via GPay
-                            </button>
+                            <span class="ft-metric-label d-block">Instant Google Pay</span>
+                            <div class="d-flex gap-2 justify-content-end mt-1 flex-wrap">
+                                <button type="button" class="ft-btn-ghost" id="heroScanQrBtn" onclick="openExpenseModal('scan')">
+                                    <i class="bi bi-qr-code-scan"></i> Scan QR
+                                </button>
+                                <button type="button" class="ft-btn-emerald" onclick="openExpenseModal('gpay')">
+                                    <i class="bi bi-google"></i> Pay via GPay
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1040,10 +1107,55 @@
                             <input type="text" class="ft-inline-input" id="expDesc" placeholder="Dinner, Uber, Groceries..." required>
                         </div>
 
-                        <!-- Optional UPI ID for Direct Google Pay Pre-fill -->
+                        <!-- In-App Google Pay QR Scanner & Recipient UPI Section -->
                         <div class="mb-3" id="upiFieldWrap">
-                            <label class="ft-metric-label" for="expUpiId">Recipient UPI ID <span class="ft-secondary-text fw-normal">(Optional — opens GPay app directly)</span></label>
-                            <input type="text" class="ft-inline-input ft-mono" id="expUpiId" placeholder="merchant@okaxis or leave blank to scan in GPay">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="ft-metric-label mb-0" for="expUpiId">Google Pay QR / Recipient UPI ID</label>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="ft-btn-ghost py-1 px-2" id="toggleQrScannerBtn" onclick="toggleQrScanner()">
+                                        <i class="bi bi-qr-code-scan"></i> <span id="toggleQrScannerBtnText">Scan GPay QR</span>
+                                    </button>
+                                    <input type="file" id="qrImageInput" class="d-none" accept="image/*" onchange="handleQrImageUpload(event)">
+                                    <button type="button" class="ft-btn-ghost py-1 px-2" id="uploadQrImgBtn" onclick="document.getElementById('qrImageInput').click()" title="Upload QR Image">
+                                        <i class="bi bi-image"></i> QR Image
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Scanned QR Verified Banner -->
+                            <div id="scannedQrBadge" class="ft-qr-verified-badge d-none mb-2">
+                                <div>
+                                    <div class="fw-semibold ft-positive"><i class="bi bi-patch-check-fill me-1"></i><span id="scannedPayeeName">Verified Merchant</span></div>
+                                    <div class="ft-mono small ft-secondary-text" id="scannedPayeeVpa">merchant@upi</div>
+                                </div>
+                                <button type="button" class="ft-icon-btn" onclick="clearScannedQrData()" title="Clear Scanned QR">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+
+                            <!-- Live In-App Camera QR Scanner Box -->
+                            <div id="qrScannerContainer" class="ft-qr-scanner-wrap d-none mb-2">
+                                <div class="ft-qr-video-box mb-2">
+                                    <video id="qrVideo" playsinline muted></video>
+                                    <canvas id="qrCanvas" class="d-none"></canvas>
+                                    <div class="ft-qr-reticle">
+                                        <div class="ft-qr-scanline"></div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <span class="small ft-secondary-text" id="qrScannerStatus">Point camera at any Google Pay / UPI QR code...</span>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="ft-btn-ghost py-1 px-2" id="demoQrScanBtn" onclick="simulateMerchantQrScan()">
+                                            Demo QR
+                                        </button>
+                                        <button type="button" class="ft-btn-ghost py-1 px-2" onclick="stopQrScanner()">
+                                            Close Camera
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="text" class="ft-inline-input ft-mono" id="expUpiId" placeholder="Scan QR above or enter merchant@okaxis">
                         </div>
 
                         <div class="row g-3 mb-4">
@@ -1108,7 +1220,7 @@
                             </button>
                             <div class="d-flex gap-2">
                                 <a href="tez://upi/pay" id="reopenGPayLink" class="ft-btn-ghost w-50 text-decoration-none">
-                                    <i class="bi bi-box-arrow-up-right"></i> Re-open GPay
+                                    <i class="bi bi-box-arrow-up-right"></i> Open GPay App
                                 </a>
                                 <button type="button" class="ft-btn-ghost w-50" onclick="backToPaymentStep1()">
                                     Edit Details
@@ -1227,6 +1339,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
     <script>
         /* ==============================================================
@@ -1360,6 +1473,9 @@
                     amtInput.focus();
                 }
             });
+            addModalEl.addEventListener('hidden.bs.modal', () => {
+                stopQrScanner();
+            });
 
             // Detect return from Google Pay Android app via visibilitychange / window focus
             document.addEventListener('visibilitychange', () => {
@@ -1414,7 +1530,13 @@
         /* ==============================================================
            GOOGLE PAY PAYMENT REDIRECT & AUTOMATIC / GROUP SPLIT FLOW
            ============================================================== */
+        let qrStream = null;
+        let qrScanInterval = null;
+        let scannedQrMeta = null; // Stores parsed QR params: { pa, pn, mc, tr, tid, raw }
+
         function openExpenseModal(preset) {
+            stopQrScanner();
+            clearScannedQrData();
             document.getElementById('expId').value = '';
             document.getElementById('expenseForm').reset();
             document.getElementById('expDate').value = getTodayStr();
@@ -1428,6 +1550,10 @@
                 setPayScope('group');
             } else if (preset === 'manual') {
                 setEntryMode('manual');
+            } else if (preset === 'scan') {
+                setEntryMode('gpay');
+                setPayScope('self');
+                setTimeout(() => startQrScanner(), 250);
             } else {
                 setEntryMode('gpay');
                 setPayScope('self');
@@ -1435,6 +1561,195 @@
 
             const modalEl = document.getElementById('addExpenseModal');
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        }
+
+        function toggleQrScanner() {
+            const container = document.getElementById('qrScannerContainer');
+            if (container.classList.contains('d-none')) {
+                startQrScanner();
+            } else {
+                stopQrScanner();
+            }
+        }
+
+        async function startQrScanner() {
+            const container = document.getElementById('qrScannerContainer');
+            const video = document.getElementById('qrVideo');
+            const statusEl = document.getElementById('qrScannerStatus');
+            const btnText = document.getElementById('toggleQrScannerBtnText');
+
+            container.classList.remove('d-none');
+            btnText.innerText = 'Stop Scanner';
+            statusEl.innerText = 'Starting camera...';
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                statusEl.innerText = 'Camera unavailable in this view. Use "QR Image" or "Demo QR".';
+                return;
+            }
+
+            try {
+                qrStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false
+                });
+                video.srcObject = qrStream;
+                await video.play();
+                statusEl.innerText = 'Point camera at a Google Pay / UPI QR code...';
+
+                if (qrScanInterval) clearInterval(qrScanInterval);
+                qrScanInterval = setInterval(scanVideoFrameForQr, 220);
+            } catch (err) {
+                statusEl.innerText = 'Camera permission denied or unavailable. Use "QR Image" or "Demo QR".';
+            }
+        }
+
+        function stopQrScanner() {
+            if (qrScanInterval) {
+                clearInterval(qrScanInterval);
+                qrScanInterval = null;
+            }
+            if (qrStream) {
+                qrStream.getTracks().forEach(track => track.stop());
+                qrStream = null;
+            }
+            const video = document.getElementById('qrVideo');
+            if (video) video.srcObject = null;
+            const container = document.getElementById('qrScannerContainer');
+            if (container) container.classList.add('d-none');
+            const btnText = document.getElementById('toggleQrScannerBtnText');
+            if (btnText) btnText.innerText = 'Scan GPay QR';
+        }
+
+        function scanVideoFrameForQr() {
+            const video = document.getElementById('qrVideo');
+            const canvas = document.getElementById('qrCanvas');
+            if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            if (typeof jsQR === 'function') {
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: 'dontInvert'
+                });
+                if (code && code.data) {
+                    handleDecodedQrPayload(code.data);
+                }
+            }
+        }
+
+        function handleQrImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('qrCanvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    if (typeof jsQR === 'function') {
+                        const code = jsQR(imageData.data, imageData.width, imageData.height);
+                        if (code && code.data) {
+                            handleDecodedQrPayload(code.data);
+                        } else {
+                            showToast('QR Not Detected', 'Could not find a valid Google Pay / UPI QR code in that image.', 'danger');
+                        }
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function simulateMerchantQrScan() {
+            const samplePayload = 'upi://pay?pa=luluhypermarket@okaxis&pn=Lulu%20Hypermarket%20Kochi&mc=5411&cu=INR';
+            handleDecodedQrPayload(samplePayload);
+        }
+
+        function parseUpiQrString(rawText) {
+            const trimmed = (rawText || '').trim();
+            // Case 1: Standard upi://pay?... or tez://upi/pay?... URL
+            if (/^(upi|tez|gpay):\/\//i.test(trimmed) || trimmed.includes('pa=')) {
+                const qIndex = trimmed.indexOf('?');
+                const queryStr = qIndex !== -1 ? trimmed.substring(qIndex + 1) : trimmed;
+                const params = new URLSearchParams(queryStr);
+                const pa = params.get('pa') || '';
+                const pn = params.get('pn') || '';
+                const am = params.get('am') || '';
+                const mc = params.get('mc') || '';
+                const tr = params.get('tr') || '';
+                const tn = params.get('tn') || '';
+                if (pa) {
+                    return { pa, pn: pn || pa.split('@')[0], am, mc, tr, tn };
+                }
+            }
+            // Case 2: Raw VPA string like merchant@okicici
+            if (/^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z]{2,}$/.test(trimmed)) {
+                return { pa: trimmed, pn: trimmed.split('@')[0], am: '', mc: '', tr: '', tn: '' };
+            }
+            return null;
+        }
+
+        function handleDecodedQrPayload(rawText) {
+            const parsed = parseUpiQrString(rawText);
+            if (!parsed || !parsed.pa) {
+                showToast('Unsupported QR', 'Scanned QR is not a valid UPI / Google Pay payment code.', 'danger');
+                return;
+            }
+
+            stopQrScanner();
+            scannedQrMeta = parsed;
+
+            // Populate form fields from QR
+            document.getElementById('expUpiId').value = parsed.pa;
+            const descInput = document.getElementById('expDesc');
+            if (!descInput.value.trim() && parsed.pn) {
+                descInput.value = parsed.pn;
+            }
+            const amtInput = document.getElementById('expAmount');
+            if ((!amtInput.value || parseFloat(amtInput.value) <= 0) && parsed.am && parseFloat(parsed.am) > 0) {
+                amtInput.value = parseFloat(parsed.am).toFixed(2);
+            }
+
+            // Show Verified QR Badge
+            document.getElementById('scannedPayeeName').innerText = parsed.pn || 'Verified Merchant';
+            document.getElementById('scannedPayeeVpa').innerText = parsed.pa;
+            document.getElementById('scannedQrBadge').classList.remove('d-none');
+
+            const currentTypedAmt = parseFloat(amtInput.value);
+            if (currentTypedAmt && currentTypedAmt > 0) {
+                // User already typed the amount -> Redirect immediately to Google Pay payment page with that amount!
+                showToast(
+                    'QR Scanned — Launching GPay',
+                    `Redirecting to Google Pay for ${parsed.pn} (${appData.currency}${formatMoney(currentTypedAmt)})...`,
+                    'success'
+                );
+                initiateGooglePayRedirect();
+            } else {
+                // Prompt user to enter amount, then tap Pay (or auto-focus amount)
+                showToast(
+                    'Google Pay QR Scanned',
+                    `Merchant "${parsed.pn}" linked. Enter amount to launch Google Pay directly.`,
+                    'success'
+                );
+                amtInput.focus();
+            }
+        }
+
+        function clearScannedQrData() {
+            scannedQrMeta = null;
+            const badge = document.getElementById('scannedQrBadge');
+            if (badge) badge.classList.add('d-none');
+            const upiInput = document.getElementById('expUpiId');
+            if (upiInput) upiInput.value = '';
         }
 
         function setEntryMode(mode) {
@@ -1461,15 +1776,19 @@
 
         function buildGooglePayDeepLink(amount, desc, upiId) {
             const cleanAmt = Number(amount).toFixed(2);
-            const cleanDesc = encodeURIComponent(desc || 'FinTrack Expense');
-            const cleanUpi = encodeURIComponent((upiId || '').trim());
+            const payeeName = (scannedQrMeta && scannedQrMeta.pn) ? scannedQrMeta.pn : (desc || 'Merchant');
+            const cleanPayee = encodeURIComponent(payeeName);
+            const cleanNote = encodeURIComponent(desc || payeeName);
+            const cleanUpi = encodeURIComponent((upiId || (scannedQrMeta && scannedQrMeta.pa) || '').trim());
             const currencyCode = appData.currency === '$' ? 'USD' : 'INR';
+            const mcParam = (scannedQrMeta && scannedQrMeta.mc) ? `&mc=${encodeURIComponent(scannedQrMeta.mc)}` : '';
+            const trParam = (scannedQrMeta && scannedQrMeta.tr) ? `&tr=${encodeURIComponent(scannedQrMeta.tr)}` : '';
 
-            // Standard Google Pay (Tez) URI scheme on Android
+            // Direct Google Pay Android payment screen deep link with user-typed amount (`am=`)
             if (cleanUpi) {
-                return `tez://upi/pay?pa=${cleanUpi}&pn=${cleanDesc}&am=${cleanAmt}&cu=${currencyCode}&tn=${cleanDesc}`;
+                return `tez://upi/pay?pa=${cleanUpi}&pn=${cleanPayee}&am=${cleanAmt}&cu=${currencyCode}&tn=${cleanNote}${mcParam}${trParam}`;
             }
-            return `tez://upi/pay?pn=${cleanDesc}&am=${cleanAmt}&cu=${currencyCode}&tn=${cleanDesc}`;
+            return `tez://upi/pay?pn=${cleanPayee}&am=${cleanAmt}&cu=${currencyCode}&tn=${cleanNote}`;
         }
 
         function initiateGooglePayRedirect() {
