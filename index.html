@@ -15,27 +15,15 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- Dynamic Manifest for PWA -->
-    <script>
-        const manifest = {
-            "name": "FinTrack Minimalist Expense Tracker",
-            "short_name": "FinTrack",
-            "description": "Ultra-minimalist expense tracker with instant Google Pay & Group Split tracking.",
-            "start_url": ".",
-            "display": "standalone",
-            "background_color": "#F9FAFB",
-            "theme_color": "#1F2937",
-            "icons": [{
-                "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231F2937'><rect width='24' height='24' rx='4' fill='%231F2937'/><path d='M7 8h10v2H9v3h6v2H9v4H7V8z' fill='%23F9FAFB'/></svg>",
-                "sizes": "192x192",
-                "type": "image/svg+xml"
-            }]
-        };
-        const stringManifest = JSON.stringify(manifest);
-        const blob = new Blob([stringManifest], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(blob);
-        document.write(`<link rel="manifest" href="${manifestURL}">`);
-    </script>
+    <!-- Production PWA Meta & Manifest Links -->
+    <meta name="theme-color" content="#1F2937" id="metaThemeColor">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FinTrack">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 
     <style>
         /* ==============================================================
@@ -962,7 +950,10 @@
                             <input type="file" id="importFile" class="d-none" accept=".json" onchange="importData(event)">
                             <button class="ft-btn-ghost" type="button" onclick="document.getElementById('importFile').click()">Import Backup (JSON)</button>
                         </div>
-                        <button class="ft-btn-ghost" type="button" id="installPwaBtn" disabled>Install App</button>
+                        <button class="ft-btn-ghost" type="button" id="installPwaBtn" onclick="triggerInstallPwa()">Install App</button>
+                        <button class="ft-btn-ghost" type="button" id="openPwaCodeModalBtn" data-bs-toggle="modal" data-bs-target="#pwaCodeModal">
+                            <i class="bi bi-code-slash"></i> PWA Files (manifest &amp; sw.js)
+                        </button>
                         <button class="ft-btn-danger-ghost ms-auto" type="button" onclick="clearAllData()">Wipe All Data</button>
                     </div>
                 </section>
@@ -1333,6 +1324,213 @@
         </div>
     </div>
 
+    <!-- ==============================================================
+         MODAL 4: PWA DEPLOYMENT KIT (MANIFEST.JSON, SW.JS & PNG ICONS)
+         ============================================================== -->
+    <div class="modal fade" id="pwaCodeModal" tabindex="-1" aria-labelledby="pwaCodeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content ft-modal-content">
+                <div class="modal-header border-0 pb-1">
+                    <div>
+                        <div class="ft-metric-label mb-0">Mobile Installability Kit</div>
+                        <h5 class="modal-title fw-semibold" id="pwaCodeModalLabel">PWA Files: manifest.json, sw.js &amp; Icons</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-2">
+                    <p class="small ft-secondary-text mb-3">
+                        To install FinTrack as a native standalone PWA on Android (Chrome WebAPK) and iOS (Safari Add to Home Screen), host <code>index.html</code>, <code>manifest.json</code>, <code>sw.js</code>, and the PNG icons in the same folder over HTTPS (e.g., GitHub Pages, Vercel, or Netlify).
+                    </p>
+
+                    <!-- Generated App Icons Preview & Download -->
+                    <div class="p-3 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3" style="border: 1px solid var(--ft-border); border-radius: 8px;">
+                        <div class="d-flex align-items-center gap-3">
+                            <img id="pwaPreviewIconImg" alt="FinTrack App Icon" width="48" height="48" style="border-radius: 10px; border: 1px solid var(--ft-border);">
+                            <div>
+                                <div class="fw-semibold small">FinTrack Monogram Icons (PNG)</div>
+                                <div class="small ft-secondary-text">Required 192&times;192 &amp; 512&times;512 PNG icons for mobile home screens</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="ft-btn-ghost" onclick="downloadGeneratedIcon(192)">
+                                <i class="bi bi-download"></i> icon-192.png
+                            </button>
+                            <button type="button" class="ft-btn-ghost" onclick="downloadGeneratedIcon(512)">
+                                <i class="bi bi-download"></i> icon-512.png
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1. manifest.json -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="ft-metric-label mb-0">1. manifest.json</span>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="ft-btn-ghost py-1 px-2" onclick="copyPwaSnippet('pwaManifestCode')">Copy</button>
+                                <button type="button" class="ft-btn-primary py-1 px-2" onclick="downloadPwaFile('manifest.json', 'pwaManifestCode', 'application/json')">Download manifest.json</button>
+                            </div>
+                        </div>
+                        <textarea id="pwaManifestCode" class="ft-inline-input ft-mono small p-2" rows="6" readonly style="border: 1px solid var(--ft-border) !important; border-radius: 6px !important;">{
+  "id": "/?source=pwa",
+  "name": "FinTrack \u2014 Minimalist Expense & Group Pay Tracker",
+  "short_name": "FinTrack",
+  "description": "Ultra-minimalist Swiss-grid expense tracker with Google Pay QR scanner and group split tracking.",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F9FAFB",
+  "theme_color": "#1F2937",
+  "categories": [
+    "finance",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan Google Pay QR",
+      "short_name": "Scan QR",
+      "description": "Scan a merchant Google Pay QR code and pay",
+      "url": "./index.html?action=scan",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Group Pay Split",
+      "short_name": "Group Pay",
+      "description": "Pay a group bill via Google Pay and split shares",
+      "url": "./index.html?action=group",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}</textarea>
+                    </div>
+
+                    <!-- 2. sw.js -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="ft-metric-label mb-0">2. sw.js (Offline Service Worker)</span>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="ft-btn-ghost py-1 px-2" onclick="copyPwaSnippet('pwaSwCode')">Copy</button>
+                                <button type="button" class="ft-btn-primary py-1 px-2" onclick="downloadPwaFile('sw.js', 'pwaSwCode', 'application/javascript')">Download sw.js</button>
+                            </div>
+                        </div>
+                        <textarea id="pwaSwCode" class="ft-inline-input ft-mono small p-2" rows="6" readonly style="border: 1px solid var(--ft-border) !important; border-radius: 6px !important;">const CACHE_NAME = 'fintrack-pwa-v4';
+const APP_SHELL_ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
+  './icons/apple-touch-icon.png',
+  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+  'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css',
+  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+  'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'
+];
+
+// Install: Pre-cache core app shell and CDN libraries
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return Promise.allSettled(
+        APP_SHELL_ASSETS.map((url) => cache.add(url))
+      );
+    })
+  );
+});
+
+// Activate: Clean up outdated caches and take control immediately
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
+    ).then(() => self.clients.claim())
+  );
+});
+
+// Fetch: Stale-While-Revalidate for fast offline-first performance
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const networkFetch = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const cloned = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
+
+      return cachedResponse || networkFetch;
+    })
+  );
+});</textarea>
+                    </div>
+
+                    <!-- 3. HTML Head & Registration Snippet -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="ft-metric-label mb-0">3. HTML Head &amp; Service Worker Registration</span>
+                            <button type="button" class="ft-btn-ghost py-1 px-2" onclick="copyPwaSnippet('pwaHtmlSnippet')">Copy</button>
+                        </div>
+                        <textarea id="pwaHtmlSnippet" class="ft-inline-input ft-mono small p-2" rows="5" readonly style="border: 1px solid var(--ft-border) !important; border-radius: 6px !important;">&lt;link rel="manifest" href="./manifest.json"&gt;
+&lt;meta name="theme-color" content="#1F2937"&gt;
+&lt;link rel="apple-touch-icon" href="./icons/icon-192.png"&gt;
+&lt;script&gt;
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () =&gt; navigator.serviceWorker.register('./sw.js'));
+  }
+&lt;/script&gt;</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast" style="z-index: 1100; margin-bottom: 74px;"></div>
 
@@ -1358,40 +1556,71 @@
         /* ==============================================================
            PWA SERVICE WORKER REGISTRATION
            ============================================================== */
-        const swScript = `
-            const CACHE_NAME = 'fintrack-minimal-v3';
-            self.addEventListener('install', event => {
-                event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['/'])));
-            });
-            self.addEventListener('fetch', event => {
-                event.respondWith(
-                    caches.match(event.request).then(response => response || fetch(event.request))
-                );
-            });
-        `;
-        const swBlob = new Blob([swScript], {type: 'application/javascript'});
-        const swUrl = URL.createObjectURL(swBlob);
-        
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register(swUrl).catch(() => {});
+                navigator.serviceWorker.register('./sw.js', { scope: './' }).catch((err) => {
+                    console.warn('Service Worker registration failed:', err);
+                });
             });
         }
 
-        let deferredPrompt;
+        let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             const btn = document.getElementById('installPwaBtn');
-            btn.disabled = false;
-            btn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
+            if (btn) btn.innerHTML = '<i class="bi bi-download"></i> Install App';
+        });
+
+        async function triggerInstallPwa() {
+            if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') { btn.disabled = true; }
+                if (outcome === 'accepted') {
+                    showToast('Installed', 'FinTrack has been added to your home screen.', 'success');
+                }
                 deferredPrompt = null;
-            });
-        });
+            } else {
+                // Show PWA Code & Install Guide Modal if native prompt is not active in sandbox
+                const modalEl = document.getElementById('pwaCodeModal');
+                if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+        }
+
+        function downloadGeneratedIcon(size) {
+            const dataUrl = size === 512 ? window.__ftIcon512 : window.__ftIcon192;
+            downloadFile(dataUrl, `icon-${size}.png`);
+            showToast('Icon Downloaded', `Saved icon-${size}.png`, 'success');
+        }
+
+        function downloadPwaFile(filename, textareaId, mimeType) {
+            const content = document.getElementById(textareaId).value;
+            const dataStr = `data:${mimeType};charset=utf-8,` + encodeURIComponent(content);
+            downloadFile(dataStr, filename);
+            showToast('File Downloaded', `Saved ${filename}`, 'success');
+        }
+
+        function copyPwaSnippet(textareaId) {
+            const el = document.getElementById(textareaId);
+            if (!el) return;
+            el.select();
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(el.value).then(() => {
+                        showToast('Copied', 'Code copied to clipboard.', 'success');
+                    }).catch(() => {
+                        document.execCommand('copy');
+                        showToast('Copied', 'Code copied to clipboard.', 'success');
+                    });
+                } else {
+                    document.execCommand('copy');
+                    showToast('Copied', 'Code copied to clipboard.', 'success');
+                }
+            } catch (e) {
+                document.execCommand('copy');
+                showToast('Copied', 'Code copied to clipboard.', 'success');
+            }
+        }
 
         /* ==============================================================
            APPLICATION STATE & INITIALIZATION
@@ -1488,6 +1717,22 @@
                     renderPendingBanner();
                 }
             });
+
+            const previewImg = document.getElementById('pwaPreviewIconImg');
+            if (previewImg && window.__ftIcon192) {
+                previewImg.src = window.__ftIcon192;
+            }
+
+            // Support PWA Home Screen Shortcut actions (?action=scan or ?action=group)
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const action = urlParams.get('action');
+                if (action === 'scan') {
+                    setTimeout(() => openExpenseModal('scan'), 300);
+                } else if (action === 'group') {
+                    setTimeout(() => openExpenseModal('group'), 300);
+                }
+            } catch (e) {}
 
             checkSetup();
             renderPendingBanner();

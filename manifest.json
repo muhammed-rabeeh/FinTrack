@@ -1,0 +1,65 @@
+{
+  "id": "/?source=pwa",
+  "name": "FinTrack \u2014 Minimalist Expense & Group Pay Tracker",
+  "short_name": "FinTrack",
+  "description": "Ultra-minimalist Swiss-grid expense tracker with Google Pay QR scanner and group split tracking.",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F9FAFB",
+  "theme_color": "#1F2937",
+  "categories": [
+    "finance",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan Google Pay QR",
+      "short_name": "Scan QR",
+      "description": "Scan a merchant Google Pay QR code and pay",
+      "url": "./index.html?action=scan",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Group Pay Split",
+      "short_name": "Group Pay",
+      "description": "Pay a group bill via Google Pay and split shares",
+      "url": "./index.html?action=group",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
