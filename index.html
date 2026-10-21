@@ -1,10 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinTrack - Smart Expense Tracker</title>
+    <title>FinTrack — Minimalist Expense & Group Pay Tracker</title>
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,15 +18,15 @@
     <!-- Dynamic Manifest for PWA -->
     <script>
         const manifest = {
-            "name": "FinTrack Smart Expense Tracker",
+            "name": "FinTrack Minimalist Expense Tracker",
             "short_name": "FinTrack",
-            "description": "Manage budgets, track expenses, and get smart financial insights.",
+            "description": "Ultra-minimalist expense tracker with instant Google Pay & Group Split tracking.",
             "start_url": ".",
             "display": "standalone",
-            "background_color": "#f8f9fa",
-            "theme_color": "#0d6efd",
+            "background_color": "#F9FAFB",
+            "theme_color": "#1F2937",
             "icons": [{
-                "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230d6efd'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/></svg>",
+                "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231F2937'><rect width='24' height='24' rx='4' fill='%231F2937'/><path d='M7 8h10v2H9v3h6v2H9v4H7V8z' fill='%23F9FAFB'/></svg>",
                 "sizes": "192x192",
                 "type": "image/svg+xml"
             }]
@@ -34,296 +38,735 @@
     </script>
 
     <style>
-        :root {
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.5);
-            --body-bg: #f0f2f5;
-            --text-main: #212529;
-            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        /* ==============================================================
+           FINTRACK SWISS-GRID ULTRA-MINIMALIST DESIGN TOKENS
+           ============================================================== */
+        :root, [data-bs-theme="light"] {
+            --ft-bg: #F9FAFB;
+            --ft-surface: #F9FAFB;
+            --ft-surface-elevated: #FFFFFF;
+            --ft-text-primary: #1F2937;
+            --ft-text-secondary: #6B7280;
+            --ft-border: #E5E7EB;
+            --ft-emerald: #10B981;
+            --ft-red: #EF4444;
+            --ft-fill-primary: #1F2937;
+            --ft-inverse-text: #F9FAFB;
+            --ft-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+            --ft-font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         [data-bs-theme="dark"] {
-            --glass-bg: rgba(33, 37, 41, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --body-bg: #121212;
-            --text-main: #f8f9fa;
-            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --ft-bg: #09090B;
+            --ft-surface: #09090B;
+            --ft-surface-elevated: #121215;
+            --ft-text-primary: #F9FAFB;
+            --ft-text-secondary: #6B7280;
+            --ft-border: #27272A;
+            --ft-emerald: #10B981;
+            --ft-red: #EF4444;
+            --ft-fill-primary: #F9FAFB;
+            --ft-inverse-text: #09090B;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            background-color: var(--body-bg);
-            color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-            padding-bottom: 80px;
+            background-color: var(--ft-bg);
+            color: var(--ft-text-primary);
+            font-family: var(--ft-font-sans);
+            font-weight: 400;
+            line-height: 1.5;
+            margin: 0;
+            padding-bottom: 112px;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
-        /* Glassmorphism Classes */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 1.25rem;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.2s, box-shadow 0.2s;
+        /* Typography Hierarchy */
+        h1, h2, h3, h4, h5, h6, .ft-heading {
+            font-family: var(--ft-font-sans);
+            font-weight: 600;
+            color: var(--ft-text-primary);
+            letter-spacing: -0.025em;
         }
 
-        .glass-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.1);
+        .ft-metric-label {
+            font-family: var(--ft-font-sans);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ft-text-secondary);
+            margin-bottom: 6px;
         }
 
-        .glass-header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--glass-border);
+        .ft-secondary-text {
+            color: var(--ft-text-secondary) !important;
+            font-weight: 400;
+        }
+
+        /* Monospace Currency & Numeric Displays */
+        .ft-mono, .currency-symbol {
+            font-family: var(--ft-font-mono) !important;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.03em;
+        }
+
+        .currency-symbol::before {
+            content: attr(data-currency);
+            margin-right: 1px;
+        }
+        /* Default fallback when data-currency is not explicitly set on element */
+        .currency-symbol:not([data-currency])::before {
+            content: '₹';
+            margin-right: 1px;
+        }
+
+        .ft-hero-balance {
+            font-family: var(--ft-font-mono);
+            font-weight: 600;
+            font-size: clamp(2.25rem, 6vw, 3.25rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            color: var(--ft-text-primary);
+        }
+
+        .ft-sub-metric {
+            font-family: var(--ft-font-mono);
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--ft-text-primary);
+        }
+
+        /* Semantic Color Utilities — Strictly Emerald (#10B981), Red (#EF4444), Monochrome */
+        .ft-positive { color: var(--ft-emerald) !important; }
+        .ft-negative { color: var(--ft-red) !important; }
+        .ft-primary-text { color: var(--ft-text-primary) !important; }
+
+        /* Viewport & Swiss-Grid Spacing Architecture */
+        .ft-viewport {
+            max-width: 680px;
+            margin: 0 auto;
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+
+        .ft-header {
+            background-color: var(--ft-bg);
+            border-bottom: 1px solid var(--ft-border);
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 1020;
+            padding-top: 16px;
+            padding-bottom: 16px;
         }
 
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
+        /* Minimalist Section Blocks (16px internal padding, zero heavy borders/shadows) */
+        .ft-section {
+            padding: 16px;
+            margin-bottom: 24px;
+            background: transparent;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        .ft-hairline-top {
+            border-top: 1px solid var(--ft-border);
         }
 
-        /* Custom UI Elements */
-        .currency-symbol::before { content: '₹'; margin-right: 2px; }
-        
-        .nav-pills .nav-link {
-            border-radius: 1rem;
-            color: var(--text-main);
-            margin: 0 0.25rem;
-            padding: 0.5rem 1rem;
-            transition: all 0.3s;
-        }
-        
-        .nav-pills .nav-link.active {
-            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        .ft-hairline-bottom {
+            border-bottom: 1px solid var(--ft-border);
         }
 
-        .chart-container {
-            position: relative;
-            height: 300px;
+        .ft-grid-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            padding: 16px 0;
+            border-top: 1px solid var(--ft-border);
+            border-bottom: 1px solid var(--ft-border);
+        }
+
+        @media (min-width: 576px) {
+            .ft-grid-row-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Single-Line Horizontal Progress Bars */
+        .ft-progress-track {
             width: 100%;
+            height: 6px;
+            background-color: var(--ft-border);
+            border-radius: 999px;
+            overflow: hidden;
         }
 
-        .icon-circle {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
+        .ft-progress-fill {
+            height: 100%;
+            background-color: var(--ft-fill-primary);
+            border-radius: 999px;
+            transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+        }
+
+        .ft-progress-fill.is-positive {
+            background-color: var(--ft-emerald);
+        }
+
+        .ft-progress-fill.is-exceeded {
+            background-color: var(--ft-red);
+        }
+
+        /* Chronological Text-Only Feed Rows */
+        .ft-tx-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ft-tx-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--ft-border);
+            gap: 12px;
+        }
+
+        .ft-tx-item:last-child {
+            border-bottom: none;
+        }
+
+        .ft-tx-meta {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .ft-tx-category {
+            font-weight: 500;
+            font-size: 0.9375rem;
+            color: var(--ft-text-primary);
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+            gap: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .health-score-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
+        .ft-tx-timestamp {
+            font-size: 0.8125rem;
+            color: var(--ft-text-secondary);
+            margin-top: 2px;
+        }
+
+        .ft-tx-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .ft-tx-amount {
+            font-family: var(--ft-font-mono);
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--ft-text-primary);
+            text-align: right;
+        }
+
+        /* Borderless Inline Inputs */
+        .ft-inline-input,
+        .ft-inline-select {
+            width: 100%;
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid var(--ft-border) !important;
+            border-radius: 0 !important;
+            padding: 10px 0 !important;
+            color: var(--ft-text-primary) !important;
+            font-family: var(--ft-font-sans);
+            font-size: 0.95rem;
+            box-shadow: none !important;
+            outline: none !important;
+            transition: border-color 0.15s ease;
+        }
+
+        .ft-inline-input:focus,
+        .ft-inline-select:focus {
+            border-bottom-color: var(--ft-text-primary) !important;
+        }
+
+        .ft-inline-input::placeholder {
+            color: var(--ft-text-secondary);
+            opacity: 0.65;
+        }
+
+        .ft-inline-select option {
+            background-color: var(--ft-surface-elevated);
+            color: var(--ft-text-primary);
+        }
+
+        .ft-amount-hero-input {
+            font-family: var(--ft-font-mono) !important;
+            font-size: 2.25rem !important;
+            font-weight: 600 !important;
+            letter-spacing: -0.03em;
+            padding: 8px 0 !important;
+        }
+
+        /* Buttons — Strictly Monochrome + Semantic Accents */
+        .ft-btn-primary {
+            background-color: var(--ft-fill-primary);
+            color: var(--ft-inverse-text);
+            border: 1px solid var(--ft-fill-primary);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: opacity 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .ft-btn-primary:hover, .ft-btn-primary:focus {
+            opacity: 0.88;
+            color: var(--ft-inverse-text);
+        }
+
+        .ft-btn-emerald {
+            background-color: var(--ft-emerald);
+            color: #FFFFFF;
+            border: 1px solid var(--ft-emerald);
+            border-radius: 8px;
+            padding: 11px 18px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .ft-btn-emerald:hover {
+            opacity: 0.92;
+            color: #FFFFFF;
+        }
+
+        .ft-btn-ghost {
+            background: transparent;
+            color: var(--ft-text-primary);
+            border: 1px solid var(--ft-border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-weight: 500;
+            font-size: 0.8125rem;
+            transition: border-color 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .ft-btn-ghost:hover {
+            border-color: var(--ft-text-primary);
+            color: var(--ft-text-primary);
+        }
+
+        .ft-btn-danger-ghost {
+            background: transparent;
+            color: var(--ft-red);
+            border: 1px solid var(--ft-border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-weight: 500;
+            font-size: 0.8125rem;
+        }
+
+        .ft-btn-danger-ghost:hover {
+            border-color: var(--ft-red);
+            background-color: rgba(239, 68, 68, 0.06);
+        }
+
+        .ft-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--ft-text-secondary);
+            padding: 4px 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .ft-icon-btn:hover {
+            color: var(--ft-text-primary);
+        }
+
+        .ft-icon-btn.is-delete:hover {
+            color: var(--ft-red);
+        }
+
+        /* Sticky 3-Item Bottom Navigation Bar */
+        .ft-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 68px;
+            background-color: var(--ft-bg);
+            border-top: 1px solid var(--ft-border);
+            z-index: 1040;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ft-bottom-nav-inner {
+            width: 100%;
+            max-width: 680px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            list-style: none;
+            margin: 0;
+        }
+
+        .ft-bottom-nav-btn {
+            width: 100%;
+            background: transparent;
+            border: none;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 8px solid;
-            margin: 0 auto;
+            gap: 4px;
+            padding: 8px 0;
+            color: var(--ft-text-secondary);
+            font-family: var(--ft-font-sans);
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: color 0.15s ease;
         }
 
-        /* Mobile Bottom Nav */
-        @media (max-width: 768px) {
-            .desktop-nav { display: none !important; }
-            .mobile-nav {
-                display: flex !important;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: var(--glass-bg);
-                backdrop-filter: blur(15px);
-                border-top: 1px solid var(--glass-border);
-                z-index: 1050;
-                padding: 0.5rem;
-                justify-content: space-around;
-                box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-            }
-            .mobile-nav .nav-link {
-                flex-direction: column;
-                display: flex;
-                align-items: center;
-                font-size: 0.75rem;
-                padding: 0.5rem;
-            }
-            .mobile-nav .nav-link i { font-size: 1.25rem; margin-bottom: 2px; }
-            body { padding-bottom: 100px; }
+        .ft-bottom-nav-btn i {
+            font-size: 1.15rem;
+            line-height: 1;
         }
-        @media (min-width: 769px) { .mobile-nav { display: none !important; } }
+
+        .ft-bottom-nav-btn.active {
+            color: var(--ft-text-primary);
+            font-weight: 600;
+        }
+
+        /* Prominent Floating Action Button (Single-Tap Expense / Pay) */
+        .ft-fab {
+            position: fixed;
+            bottom: 84px;
+            right: max(24px, calc((100vw - 680px) / 2 + 24px));
+            z-index: 1045;
+            background-color: var(--ft-fill-primary);
+            color: var(--ft-inverse-text);
+            border: none;
+            border-radius: 999px;
+            padding: 12px 20px;
+            font-family: var(--ft-font-sans);
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        .ft-fab:hover {
+            transform: translateY(-1px);
+            opacity: 0.94;
+        }
+
+        /* Segmented Control (Self vs Group Pay / Pay vs Manual) */
+        .ft-segmented {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 1px solid var(--ft-border);
+            border-radius: 8px;
+            padding: 3px;
+            gap: 4px;
+            background-color: var(--ft-bg);
+        }
+
+        .ft-segment-btn {
+            border: none;
+            background: transparent;
+            color: var(--ft-text-secondary);
+            font-family: var(--ft-font-sans);
+            font-weight: 500;
+            font-size: 0.8125rem;
+            padding: 8px 10px;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .ft-segment-btn.active {
+            background-color: var(--ft-fill-primary);
+            color: var(--ft-inverse-text);
+            font-weight: 600;
+        }
+
+        /* Group Split Interactive Row */
+        .ft-split-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--ft-border);
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+
+        .ft-split-row:hover {
+            opacity: 0.82;
+        }
+
+        .ft-pill-tag {
+            display: inline-block;
+            font-size: 0.6875rem;
+            font-weight: 500;
+            padding: 2px 7px;
+            border: 1px solid var(--ft-border);
+            border-radius: 4px;
+            color: var(--ft-text-secondary);
+            font-family: var(--ft-font-sans);
+        }
+
+        /* Modal Customization */
+        .ft-modal-content {
+            background-color: var(--ft-surface-elevated);
+            color: var(--ft-text-primary);
+            border: 1px solid var(--ft-border);
+            border-radius: 12px;
+            padding: 8px;
+        }
+
+        /* Sparkline Container */
+        .ft-sparkline-box {
+            position: relative;
+            height: 160px;
+            width: 100%;
+        }
+
+        /* Minimalist Table Override for Compatibility */
+        .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--ft-text-primary);
+            --bs-table-border-color: var(--ft-border);
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="glass-header py-3 mb-4">
-        <div class="container d-flex justify-content-between align-items-center">
-            <h4 class="m-0 fw-bold text-primary"><i class="bi bi-wallet2 me-2"></i>FinTrack</h4>
+    <!-- Sticky Minimalist Header -->
+    <header class="ft-header">
+        <div class="ft-viewport d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-outline-secondary rounded-circle" id="themeToggle" title="Toggle Theme">
-                    <i class="bi bi-moon-fill" id="themeIcon"></i>
+                <span class="ft-heading fs-5 tracking-tight">FinTrack</span>
+                <span class="ft-pill-tag">SWISS GRID</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="ft-btn-ghost" id="themeToggle" type="button" title="Toggle Theme">
+                    <i class="bi bi-moon" id="themeIcon"></i>
                 </button>
-                <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
-                    <i class="bi bi-plus-lg me-1"></i> Add Expense
+                <button class="ft-btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addExpenseModal" onclick="openExpenseModal('gpay')">
+                    <i class="bi bi-plus-lg"></i> Add Expense
                 </button>
             </div>
         </div>
     </header>
 
-    <div class="container mb-5">
-        <!-- Desktop Navigation -->
-        <ul class="nav nav-pills justify-content-center mb-4 desktop-nav glass-card p-2 w-auto mx-auto" id="mainTabs" role="tablist" style="display: inline-flex;">
+    <!-- Main Swiss-Grid Viewport (24px outer margins, 16px internal card padding) -->
+    <main class="ft-viewport mt-3">
+
+        <!-- Hidden/Accessible Tab Triggers so all views & legacy hooks remain 100% wired -->
+        <ul class="nav d-none" id="mainTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active fw-semibold" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#dashboard" type="button" role="tab"><i class="bi bi-grid-1x2 me-2"></i>Dashboard</button>
+                <button class="nav-link active" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#dashboard" type="button" role="tab">Dashboard</button>
+                <button type="button" onclick="switchPrimaryNav('dashboard')">Home</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link fw-semibold" id="expenses-tab" data-bs-toggle="pill" data-bs-target="#expenses" type="button" role="tab"><i class="bi bi-receipt me-2"></i>Transactions</button>
+                <button class="nav-link" id="expenses-tab" data-bs-toggle="pill" data-bs-target="#expenses" type="button" role="tab">Transactions</button>
+                <button type="button" onclick="switchPrimaryNav('expenses')">Logs</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link fw-semibold" id="analytics-tab" data-bs-toggle="pill" data-bs-target="#analytics" type="button" role="tab"><i class="bi bi-graph-up me-2"></i>Analytics</button>
+                <button class="nav-link" id="analytics-tab" data-bs-toggle="pill" data-bs-target="#analytics" type="button" role="tab">Analytics</button>
+                <button type="button" onclick="switchPrimaryNav('analytics')">Stats</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link fw-semibold" id="settings-tab" data-bs-toggle="pill" data-bs-target="#settings" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>
+                <button class="nav-link" id="settings-tab" data-bs-toggle="pill" data-bs-target="#settings" type="button" role="tab">Settings</button>
+                <button type="button" onclick="switchPrimaryNav('settings')">Setup</button>
             </li>
         </ul>
 
-        <!-- Setup Alert -->
-        <div class="alert alert-warning alert-dismissible fade show d-none rounded-4 shadow-sm" id="setupAlert" role="alert">
-            <strong>Welcome to FinTrack!</strong> Please set up your initial balance and budget in the <strong>Settings</strong> tab to get started.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <!-- Pending Google Pay Return Banner (Appears automatically when user initiated GPay payment) -->
+        <div id="pendingGPayBanner" class="ft-section ft-hairline-top ft-hairline-bottom d-none mb-3" style="border-left: 3px solid var(--ft-emerald);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <div class="ft-metric-label ft-positive mb-1">Google Pay Payment In Progress</div>
+                    <div class="small">Returned from Google Pay? Complete and record <strong id="bannerPendingDesc">your payment</strong> (<span class="ft-mono" id="bannerPendingAmt">0.00</span>).</div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="ft-btn-emerald" id="resumePendingPayBtn" onclick="resumePendingPayment()">
+                        Mark as Done
+                    </button>
+                    <button type="button" class="ft-btn-ghost" onclick="cancelPendingPayment()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Prompt Banner -->
+        <div class="ft-section ft-hairline-top ft-hairline-bottom d-none mb-3" id="setupAlert" role="alert">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <div class="ft-metric-label mb-1">Initial Configuration</div>
+                    <span class="small ft-secondary-text">Set your initial balance and monthly budget in <strong>Budgets</strong>, or load sample data to explore.</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="ft-btn-ghost" id="loadSampleDataBtn" onclick="loadSampleData()">Load Sample</button>
+                    <button type="button" class="ft-btn-primary" onclick="switchPrimaryNav('settings')">Configure</button>
+                </div>
+            </div>
         </div>
 
         <!-- Tab Content -->
         <div class="tab-content" id="mainTabsContent">
             
-            <!-- DASHBOARD TAB -->
-            <div class="tab-pane fade show active fade-in" id="dashboard" role="tabpanel">
-                <div class="row g-4 mb-4">
-                    <!-- Total Balance -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="glass-card p-4 h-100">
-                            <p class="text-muted mb-1 fw-semibold">Account Balance</p>
-                            <h2 class="mb-0 fw-bold currency-symbol text-primary" id="dashTotalBalance">0</h2>
-                            <small class="text-muted mt-2 d-block">Includes balance & savings</small>
+            <!-- ==========================================================
+                 VIEW 1: OVERVIEW (DASHBOARD + GROUP SPLITS + FEED)
+                 ========================================================== -->
+            <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+                
+                <!-- Dominant Hero Balance Section -->
+                <section class="ft-section">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="ft-metric-label">Available Account Balance</div>
+                            <h1 class="ft-hero-balance currency-symbol mb-1" id="dashTotalBalance">0.00</h1>
+                            <div class="small ft-secondary-text">Net cash flow across balance &amp; income</div>
                         </div>
-                    </div>
-                    <!-- Remaining Budget -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="glass-card p-4 h-100">
-                            <p class="text-muted mb-1 fw-semibold">Current Budget Left</p>
-                            <h2 class="mb-0 fw-bold currency-symbol" id="dashRemainingBudget">0</h2>
-                            <div class="progress mt-3" style="height: 8px;">
-                                <div id="budgetProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%;"></div>
-                            </div>
-                            <small class="mt-2 d-block text-end" id="budgetPercentageText">0% used</small>
-                        </div>
-                    </div>
-                    <!-- Daily Limit -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="glass-card p-4 h-100 position-relative overflow-hidden">
-                            <div class="position-absolute top-0 end-0 p-3 opacity-25"><i class="bi bi-calendar-day fs-1"></i></div>
-                            <p class="text-muted mb-1 fw-semibold">Safe Daily Spend</p>
-                            <h2 class="mb-0 fw-bold currency-symbol" id="dashDailyLimit">0</h2>
-                            <small class="text-muted mt-2 d-block" id="dashDaysRemaining">0 days remaining</small>
-                        </div>
-                    </div>
-                    <!-- Monthly Expenses -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="glass-card p-4 h-100 border-info border-opacity-50">
-                            <p class="text-muted mb-1 fw-semibold">This Month's Spend</p>
-                            <h2 class="mb-0 fw-bold currency-symbol text-danger" id="dashMonthExpenses">0</h2>
-                            <small class="text-muted mt-2 d-block"><i class="bi bi-arrow-repeat me-1"></i>Resets every 1st of month</small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-4">
-                    <!-- Health Score, Savings, and Overspending -->
-                    <div class="col-lg-4">
-                        <div class="glass-card p-4 mb-4 text-center">
-                            <h5 class="fw-bold mb-4">Financial Health Score</h5>
-                            <div class="health-score-circle border-success text-success" id="healthScoreCircle">
-                                <h1 class="mb-0 fw-bold" id="healthScoreValue">100</h1>
-                            </div>
-                            <h5 class="mt-3 fw-bold" id="healthScoreText">Excellent</h5>
-                            <p class="text-muted small mb-0" id="healthScoreDesc">Great job managing your budget!</p>
-                        </div>
-
-                        <div class="glass-card p-4 mb-4">
-                            <h5 class="fw-bold mb-3">Savings Tracker</h5>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted">Goal: <span class="currency-symbol" id="dashSavingsGoal">0</span></span>
-                                <span class="fw-bold text-success currency-symbol" id="dashSavedAmount">0</span>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div id="savingsProgressBar" class="progress-bar bg-primary" role="progressbar" style="width: 0%;"></div>
-                            </div>
-                            <p class="small text-muted mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Unspent budget is added here after rollover.</p>
-                        </div>
-                        
-                        <!-- Overspending Penalty Block -->
-                        <div class="glass-card p-4 border-danger border-opacity-25" style="background: rgba(220, 53, 69, 0.05);">
-                            <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Overspending Penalty</h5>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted">Total Overspent<br><small>(Historical)</small></span>
-                                <h3 class="fw-bold text-danger currency-symbol mb-0" id="dashOverspentAmount">0</h3>
-                            </div>
-                            <p class="small text-muted mt-2 mb-0">Accumulated automatically when spending exceeds your budget at the end of a period.</p>
+                        <div class="text-end">
+                            <span class="ft-metric-label d-block">Quick Pay</span>
+                            <button type="button" class="ft-btn-emerald mt-1" onclick="openExpenseModal('gpay')">
+                                <i class="bi bi-google"></i> Pay via GPay
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Recent Transactions & Insights -->
-                    <div class="col-lg-8">
-                        <div class="glass-card p-4 mb-4">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-lightbulb text-warning me-2"></i>Smart Insights</h5>
-                            <ul class="list-group list-group-flush bg-transparent" id="insightsList">
-                                <li class="list-group-item bg-transparent text-muted">Calculating insights...</li>
-                            </ul>
+                    <!-- Primary Swiss-Grid Metrics Strip -->
+                    <div class="ft-grid-row ft-grid-row-3 mt-4">
+                        <div>
+                            <div class="ft-metric-label">Budget Remaining</div>
+                            <div class="ft-sub-metric currency-symbol" id="dashRemainingBudget">0.00</div>
+                            <div class="small ft-secondary-text mt-1" id="budgetPercentageText">0.0% used</div>
                         </div>
-
-                        <div class="glass-card p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="fw-bold mb-0">Recent Transactions</h5>
-                                <button class="btn btn-sm btn-link text-decoration-none" onclick="document.getElementById('expenses-tab').click()">View All</button>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <tbody id="recentExpensesTable">
-                                        <!-- Populated via JS -->
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div>
+                            <div class="ft-metric-label">Safe Daily Spend</div>
+                            <div class="ft-sub-metric currency-symbol" id="dashDailyLimit">0.00</div>
+                            <div class="small ft-secondary-text mt-1" id="dashDaysRemaining">0 days left</div>
+                        </div>
+                        <div>
+                            <div class="ft-metric-label">Month Spend</div>
+                            <div class="ft-sub-metric currency-symbol" id="dashMonthExpenses">0.00</div>
+                            <div class="small ft-secondary-text mt-1">Current cycle</div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Single-Line Horizontal Budget Progress Bar -->
+                    <div class="mt-3">
+                        <div class="ft-progress-track">
+                            <div id="budgetProgressBar" class="ft-progress-fill" role="progressbar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Group Pay & Split Tracker Section (Saved in localStorage) -->
+                <section class="ft-section ft-hairline-top" id="groupSplitsSection">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <div class="ft-metric-label mb-0">Group Pay Splits</div>
+                            <div class="small ft-secondary-text">Tap any split to inspect participant shares or delete</div>
+                        </div>
+                        <button type="button" class="ft-btn-ghost" onclick="openExpenseModal('group')">
+                            <i class="bi bi-people"></i> New Group Pay
+                        </button>
+                    </div>
+                    <div id="groupSplitsList">
+                        <!-- Populated via JS -->
+                    </div>
+                </section>
+
+                <!-- Chronological Text-Only Transaction Feed -->
+                <section class="ft-section ft-hairline-top">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="ft-metric-label mb-0">Recent Transactions</div>
+                        <button class="ft-icon-btn fw-medium" type="button" onclick="switchPrimaryNav('expenses')">View All</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <tbody id="recentExpensesTable">
+                                <!-- Populated via JS: Strictly text-only, Category + Timestamp on left, Monospace Amount on right -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Minimalist Financial Clarity & Insights Strip -->
+                <section class="ft-section ft-hairline-top">
+                    <div class="d-flex justify-content-between align-items-baseline mb-3">
+                        <div class="ft-metric-label mb-0">Financial Clarity Index</div>
+                        <div class="d-flex align-items-baseline gap-2" id="healthScoreCircle">
+                            <span class="ft-mono fw-semibold fs-5" id="healthScoreValue">100</span>
+                            <span class="small fw-medium" id="healthScoreText">Optimal</span>
+                        </div>
+                    </div>
+                    <p class="small ft-secondary-text mb-3" id="healthScoreDesc">Spending pace aligns with your current period budget.</p>
+                    <ul class="list-unstyled mb-0 small" id="insightsList">
+                        <!-- Populated via JS -->
+                    </ul>
+                </section>
             </div>
 
-            <!-- EXPENSES TAB -->
-            <div class="tab-pane fade fade-in" id="expenses" role="tabpanel">
-                <div class="glass-card p-4 mb-4">
-                    <div class="row g-3 align-items-center">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
-                                <input type="text" class="form-control" id="searchExpense" placeholder="Search expenses...">
-                            </div>
+            <!-- ==========================================================
+                 SUB-VIEW: FULL TRANSACTIONS & FILTERING (#expenses)
+                 ========================================================== -->
+            <div class="tab-pane fade" id="expenses" role="tabpanel">
+                <section class="ft-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <div class="ft-metric-label mb-0">Ledger</div>
+                            <h5 class="mb-0">All Transactions</h5>
                         </div>
-                        <div class="col-md-3">
-                            <select class="form-select" id="filterCategory">
+                        <button type="button" class="ft-btn-ghost" onclick="switchPrimaryNav('dashboard')">
+                            <i class="bi bi-arrow-left"></i> Back to Overview
+                        </button>
+                    </div>
+
+                    <!-- Minimalist Borderless Filter Controls -->
+                    <div class="row g-3 mb-4 align-items-end">
+                        <div class="col-sm-5">
+                            <label class="ft-metric-label" for="searchExpense">Search</label>
+                            <input type="text" class="ft-inline-input" id="searchExpense" placeholder="Filter by description or amount...">
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <label class="ft-metric-label" for="filterCategory">Category</label>
+                            <select class="ft-inline-select" id="filterCategory">
                                 <option value="All">All Categories</option>
                                 <option value="Food">Food</option>
                                 <option value="Travel">Travel</option>
@@ -335,184 +778,278 @@
                                 <option value="Others">Others</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <input type="month" class="form-control" id="filterMonth">
+                        <div class="col-6 col-sm-2">
+                            <label class="ft-metric-label" for="filterMonth">Month</label>
+                            <input type="month" class="ft-inline-input" id="filterMonth">
                         </div>
-                        <div class="col-md-2 text-end">
-                            <button class="btn btn-outline-secondary w-100" id="resetFilters">Reset</button>
+                        <div class="col-12 col-sm-2 text-end">
+                            <button class="ft-btn-ghost w-100" id="resetFilters" type="button">Reset</button>
                         </div>
                     </div>
-                </div>
 
-                <div class="glass-card p-4">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Category</th>
-                                    <th>Method</th>
-                                    <th>Amount</th>
-                                    <th class="text-end">Actions</th>
-                                </tr>
-                            </thead>
+                        <table class="table align-middle">
                             <tbody id="fullExpensesTable">
                                 <!-- Populated via JS -->
                             </tbody>
                         </table>
                     </div>
-                    <div id="noExpensesMsg" class="text-center py-5 d-none text-muted">
-                        <i class="bi bi-receipt fs-1 d-block mb-2"></i>
-                        <p>No expenses found for this period. Click 'Add Expense' to log one.</p>
+                    <div id="noExpensesMsg" class="text-center py-5 d-none ft-secondary-text">
+                        <p class="mb-2">No transactions match the selected period.</p>
+                        <button type="button" class="ft-btn-ghost" onclick="openExpenseModal('gpay')">Pay or Log Expense</button>
                     </div>
-                </div>
+                </section>
             </div>
 
-            <!-- ANALYTICS TAB -->
-            <div class="tab-pane fade fade-in" id="analytics" role="tabpanel">
-                <div class="row g-4">
-                    <div class="col-lg-6">
-                        <div class="glass-card p-4 h-100">
-                            <h5 class="fw-bold mb-4 text-center">Expenses by Category <br><small class="text-muted fw-normal">(Current Budget Period)</small></h5>
-                            <div class="chart-container">
-                                <canvas id="categoryChart"></canvas>
-                            </div>
+            <!-- ==========================================================
+                 VIEW 2: BUDGETS & CONFIGURATION (#settings)
+                 ========================================================== -->
+            <div class="tab-pane fade" id="settings" role="tabpanel">
+                
+                <!-- Budget & Savings Status Bars -->
+                <section class="ft-section">
+                    <div class="ft-metric-label">Budget &amp; Reserve Overview</div>
+                    <div class="ft-grid-row mt-2">
+                        <div>
+                            <div class="ft-metric-label">Accumulated Savings</div>
+                            <div class="ft-sub-metric ft-positive currency-symbol" id="dashSavedAmount">0.00</div>
+                            <div class="small ft-secondary-text mt-1">Goal: <span class="currency-symbol" id="dashSavingsGoal">0.00</span></div>
+                        </div>
+                        <div>
+                            <div class="ft-metric-label">Budget Exceeded Alert</div>
+                            <div class="ft-sub-metric ft-negative currency-symbol" id="dashOverspentAmount">0.00</div>
+                            <div class="small ft-secondary-text mt-1">Historical rollover deficit</div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="glass-card p-4 h-100">
-                            <h5 class="fw-bold mb-4 text-center">Current Budget vs Actual</h5>
-                            <div class="chart-container">
-                                <canvas id="budgetBarChart"></canvas>
-                            </div>
+
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between small ft-secondary-text mb-1">
+                            <span>Savings Goal Progress</span>
+                            <span class="ft-mono" id="savingsPctLabel">0%</span>
+                        </div>
+                        <div class="ft-progress-track">
+                            <div id="savingsProgressBar" class="ft-progress-fill is-positive" role="progressbar" style="width: 0%;"></div>
                         </div>
                     </div>
-                    <div class="col-12">
-                        <div class="glass-card p-4">
-                            <h5 class="fw-bold mb-4 text-center">Daily Spending Trend (Current Month)</h5>
-                            <div class="chart-container" style="height: 350px;">
-                                <canvas id="trendChart"></canvas>
-                            </div>
+                </section>
+
+                <!-- Borderless Inline Budget & Account Setup -->
+                <section class="ft-section ft-hairline-top">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <div class="ft-metric-label mb-0">Parameters</div>
+                            <h5 class="mb-0">Budget &amp; Account Setup</h5>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="ft-metric-label mb-0" for="currencySelect">Currency</label>
+                            <select id="currencySelect" class="ft-inline-select" style="width: auto; padding: 4px 8px !important;">
+                                <option value="₹">₹ (INR)</option>
+                                <option value="$">$ (USD)</option>
+                            </select>
                         </div>
                     </div>
-                </div>
+
+                    <form id="settingsForm">
+                        <div class="row g-4 mb-4">
+                            <div class="col-sm-4">
+                                <label class="ft-metric-label" for="setInitialBalance">Initial Balance</label>
+                                <input type="number" step="0.01" class="ft-inline-input ft-mono" id="setInitialBalance" min="0" placeholder="0.00" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="ft-metric-label" for="setIncome">Monthly Income</label>
+                                <input type="number" step="0.01" class="ft-inline-input ft-mono" id="setIncome" min="0" placeholder="0.00">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="ft-metric-label" for="setSavingsGoal">Savings Target</label>
+                                <input type="number" step="0.01" class="ft-inline-input ft-mono" id="setSavingsGoal" min="0" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="ft-metric-label mt-4 mb-2">Active Budget Cycle (Auto-Rollover)</div>
+                        <div class="row g-4 mb-4">
+                            <div class="col-sm-4">
+                                <label class="ft-metric-label" for="setBudgetAmount">Period Limit</label>
+                                <input type="number" step="0.01" class="ft-inline-input ft-mono" id="setBudgetAmount" min="0" placeholder="0.00" required>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <label class="ft-metric-label" for="setStartDate">Start Date</label>
+                                <input type="date" class="ft-inline-input ft-mono" id="setStartDate" required>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <label class="ft-metric-label" for="setEndDate">End Date</label>
+                                <input type="date" class="ft-inline-input ft-mono" id="setEndDate" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="ft-btn-primary w-100">Save Configuration</button>
+                    </form>
+                </section>
+
+                <!-- Data Management & PWA Controls -->
+                <section class="ft-section ft-hairline-top">
+                    <div class="ft-metric-label mb-3">Data Portability &amp; Storage</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="ft-btn-ghost" type="button" onclick="exportData('csv')">Export as CSV</button>
+                        <button class="ft-btn-ghost" type="button" onclick="exportData('json')">Export Backup (JSON)</button>
+                        <div class="position-relative d-inline-block">
+                            <input type="file" id="importFile" class="d-none" accept=".json" onchange="importData(event)">
+                            <button class="ft-btn-ghost" type="button" onclick="document.getElementById('importFile').click()">Import Backup (JSON)</button>
+                        </div>
+                        <button class="ft-btn-ghost" type="button" id="installPwaBtn" disabled>Install App</button>
+                        <button class="ft-btn-danger-ghost ms-auto" type="button" onclick="clearAllData()">Wipe All Data</button>
+                    </div>
+                </section>
             </div>
 
-            <!-- SETTINGS TAB -->
-            <div class="tab-pane fade fade-in" id="settings" role="tabpanel">
-                <div class="row g-4">
-                    <div class="col-lg-6">
-                        <div class="glass-card p-4 h-100">
-                            <h5 class="fw-bold mb-4"><i class="bi bi-person-gear me-2"></i>Account Setup & Budgeting</h5>
-                            <form id="settingsForm">
-                                <div class="mb-3">
-                                    <label class="form-label text-muted">Initial Account Balance (₹)</label>
-                                    <input type="number" class="form-control form-control-lg" id="setInitialBalance" min="0" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label text-muted">Monthly Income (₹) <small>(Optional)</small></label>
-                                    <input type="number" class="form-control" id="setIncome" min="0">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label text-muted">Target Savings Goal (₹) <small>(Optional)</small></label>
-                                    <input type="number" class="form-control" id="setSavingsGoal" min="0">
-                                </div>
-                                <hr class="my-4">
-                                <h6 class="fw-bold mb-3">Current Budget Period <span class="badge bg-primary ms-2">Auto-renews</span></h6>
-                                <p class="small text-muted mb-3">When the end date passes, unspent funds are moved to savings and overspending is recorded. Dates will auto-renew to the next month.</p>
-                                <div class="mb-3">
-                                    <label class="form-label text-muted">Total Budget Amount (₹)</label>
-                                    <input type="number" class="form-control form-control-lg border-primary" id="setBudgetAmount" min="0" required>
-                                </div>
-                                <div class="row g-3 mb-4">
-                                    <div class="col-6">
-                                        <label class="form-label text-muted">Start Date</label>
-                                        <input type="date" class="form-control" id="setStartDate" required>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label text-muted">End Date</label>
-                                        <input type="date" class="form-control" id="setEndDate" required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Save Configuration</button>
-                            </form>
+            <!-- ==========================================================
+                 VIEW 3: ANALYTICS (HORIZONTAL PROGRESS BARS & SPARKLINE)
+                 ========================================================== -->
+            <div class="tab-pane fade" id="analytics" role="tabpanel">
+                
+                <!-- Budget vs Actual Single-Line Progress Comparison -->
+                <section class="ft-section">
+                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                        <div>
+                            <div class="ft-metric-label mb-0">Period Utilization</div>
+                            <h5 class="mb-0">Budget vs. Actual</h5>
+                        </div>
+                        <div class="ft-mono small">
+                            <span id="analyticsSpentLabel" class="currency-symbol">0.00</span>
+                            <span class="ft-secondary-text"> / </span>
+                            <span id="analyticsBudgetLabel" class="currency-symbol ft-secondary-text">0.00</span>
                         </div>
                     </div>
-                    
-                    <div class="col-lg-6">
-                        <div class="glass-card p-4 mb-4">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-cloud-arrow-down me-2"></i>Data Management</h5>
-                            <p class="text-muted small mb-4">Your data is stored securely in your browser's Local Storage. Export it to keep backups.</p>
-                            
-                            <div class="d-grid gap-3">
-                                <button class="btn btn-outline-success rounded-pill" onclick="exportData('csv')">
-                                    <i class="bi bi-filetype-csv me-2"></i>Export as CSV
-                                </button>
-                                <button class="btn btn-outline-primary rounded-pill" onclick="exportData('json')">
-                                    <i class="bi bi-filetype-json me-2"></i>Export Backup (JSON)
-                                </button>
-                                <div class="position-relative">
-                                    <input type="file" id="importFile" class="form-control position-absolute top-0 start-0 w-100 h-100 opacity-0" accept=".json" style="cursor: pointer;" onchange="importData(event)">
-                                    <button class="btn btn-outline-warning rounded-pill w-100">
-                                        <i class="bi bi-cloud-arrow-up me-2"></i>Import Backup (JSON)
-                                    </button>
-                                </div>
-                                <button class="btn btn-outline-danger rounded-pill mt-2" onclick="clearAllData()">
-                                    <i class="bi bi-trash me-2"></i>Wipe All Data
-                                </button>
-                            </div>
-                        </div>
+                    <div class="ft-progress-track mt-3">
+                        <div id="analyticsBudgetBar" class="ft-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </section>
 
-                        <div class="glass-card p-4">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-phone me-2"></i>App Installation</h5>
-                            <p class="text-muted small">Install FinTrack as a Progressive Web App on your device for offline access and an app-like experience.</p>
-                            <button class="btn btn-dark w-100 rounded-pill" id="installPwaBtn" disabled>
-                                <i class="bi bi-download me-2"></i>Install App
-                            </button>
-                        </div>
+                <!-- Category Breakdown: Single-Line Horizontal Progress Bars -->
+                <section class="ft-section ft-hairline-top">
+                    <div class="ft-metric-label mb-1">Allocation</div>
+                    <h5 class="mb-3">Spending by Category</h5>
+                    <div id="categoryProgressBars" class="d-flex flex-column gap-3">
+                        <!-- Populated via JS: Clean single-line horizontal progress bars (#E5E7EB track, monochrome primary fill) -->
                     </div>
-                </div>
+                </section>
+
+                <!-- Daily Spending Trend: Minimalist Monochrome Sparkline -->
+                <section class="ft-section ft-hairline-top">
+                    <div class="d-flex justify-content-between align-items-baseline mb-3">
+                        <div>
+                            <div class="ft-metric-label mb-0">Daily Velocity</div>
+                            <h5 class="mb-0">Current Month Sparkline</h5>
+                        </div>
+                        <span class="ft-mono small ft-secondary-text" id="sparklinePeakLabel">Peak: 0.00</span>
+                    </div>
+                    <div class="ft-sparkline-box">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                    <!-- Hidden compatibility canvases for legacy references -->
+                    <div class="d-none">
+                        <canvas id="categoryChart"></canvas>
+                        <canvas id="budgetBarChart"></canvas>
+                    </div>
+                </section>
             </div>
 
         </div>
-    </div>
+    </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <ul class="nav nav-pills mobile-nav" id="mobileTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active bg-transparent" onclick="document.getElementById('dashboard-tab').click()" type="button"><i class="bi bi-grid-1x2"></i>Home</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link bg-transparent" onclick="document.getElementById('expenses-tab').click()" type="button"><i class="bi bi-receipt"></i>Logs</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link bg-transparent" onclick="document.getElementById('analytics-tab').click()" type="button"><i class="bi bi-graph-up"></i>Stats</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link bg-transparent" onclick="document.getElementById('settings-tab').click()" type="button"><i class="bi bi-gear"></i>Setup</button>
-        </li>
-    </ul>
+    <!-- Prominent Floating Action Button (Single-Tap Pay / Log Expense) -->
+    <button type="button" class="ft-fab" onclick="openExpenseModal('gpay')" aria-label="Pay or Log Expense">
+        <i class="bi bi-plus-lg"></i>
+        <span>Pay / Log</span>
+    </button>
 
-    <!-- Add Expense Modal -->
+    <!-- Sticky Bottom Navigation Bar (Strictly 3 Options: Overview, Budgets, Analytics) -->
+    <nav class="ft-bottom-nav" aria-label="Primary Navigation">
+        <ul class="ft-bottom-nav-inner" id="mobileTabs" role="tablist">
+            <li role="presentation">
+                <button class="ft-bottom-nav-btn active" id="navBtnOverview" onclick="switchPrimaryNav('dashboard')" type="button">
+                    <i class="bi bi-grid-1x2"></i>
+                    <span>Overview</span>
+                </button>
+            </li>
+            <li role="presentation">
+                <button class="ft-bottom-nav-btn" id="navBtnBudgets" onclick="switchPrimaryNav('settings')" type="button">
+                    <i class="bi bi-sliders"></i>
+                    <span>Budgets</span>
+                </button>
+            </li>
+            <li role="presentation">
+                <button class="ft-bottom-nav-btn" id="navBtnAnalytics" onclick="switchPrimaryNav('analytics')" type="button">
+                    <i class="bi bi-activity"></i>
+                    <span>Analytics</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ==============================================================
+         MODAL 1: UNIFIED PAY (GOOGLE PAY SELF / GROUP) & LOG EXPENSE
+         ============================================================== -->
     <div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content glass-card border-0">
-                <div class="modal-header border-bottom-0">
-                    <h5 class="modal-title fw-bold" id="addExpenseModalLabel">New Expense</h5>
+            <div class="modal-content ft-modal-content">
+                <div class="modal-header border-0 pb-1">
+                    <div>
+                        <div class="ft-metric-label mb-0" id="modalSubHeader">Instant Expense Capture</div>
+                        <h5 class="modal-title fw-semibold" id="addExpenseModalLabel">Pay &amp; Track Expense</h5>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+
+                <div class="modal-body pt-2">
+                    
+                    <!-- Entry Mode Switcher: Google Pay Auto-Track vs Manual Log -->
+                    <div class="ft-segmented mb-3" id="entryModeToggleWrap">
+                        <button type="button" class="ft-segment-btn active" id="modeGPayBtn" onclick="setEntryMode('gpay')">
+                            <i class="bi bi-google me-1"></i>Pay via Google Pay
+                        </button>
+                        <button type="button" class="ft-segment-btn" id="modeManualBtn" onclick="setEntryMode('manual')">
+                            <i class="bi bi-pencil-square me-1"></i>Manual Entry
+                        </button>
+                    </div>
+
+                    <!-- STEP 1: EXPENSE & PAYMENT DETAILS FORM -->
                     <form id="expenseForm">
                         <input type="hidden" id="expId">
-                        <div class="mb-3">
-                            <label class="form-label text-muted">Amount (₹)</label>
-                            <input type="number" class="form-control form-control-lg" id="expAmount" step="0.01" min="0.01" required>
+
+                        <!-- Self vs Group Pay Selector (Shown in Google Pay mode) -->
+                        <div id="payScopeWrap" class="mb-3">
+                            <label class="ft-metric-label d-block">Payment Scope</label>
+                            <div class="ft-segmented">
+                                <button type="button" class="ft-segment-btn active" id="scopeSelfBtn" onclick="setPayScope('self')">
+                                    Paying Self
+                                </button>
+                                <button type="button" class="ft-segment-btn" id="scopeGroupBtn" onclick="setPayScope('group')">
+                                    Group Pay (Split)
+                                </button>
+                            </div>
                         </div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label class="form-label text-muted">Category</label>
-                                <select class="form-select" id="expCategory" required>
+
+                        <!-- Autofocused Borderless Inline Amount Input -->
+                        <div class="mb-3">
+                            <label class="ft-metric-label" for="expAmount">Total Amount</label>
+                            <input type="number" class="ft-inline-input ft-amount-hero-input" id="expAmount" step="0.01" min="0.01" placeholder="0.00" required autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="ft-metric-label" for="expDesc">Description / Merchant</label>
+                            <input type="text" class="ft-inline-input" id="expDesc" placeholder="Dinner, Uber, Groceries..." required>
+                        </div>
+
+                        <!-- Optional UPI ID for Direct Google Pay Pre-fill -->
+                        <div class="mb-3" id="upiFieldWrap">
+                            <label class="ft-metric-label" for="expUpiId">Recipient UPI ID <span class="ft-secondary-text fw-normal">(Optional — opens GPay app directly)</span></label>
+                            <input type="text" class="ft-inline-input ft-mono" id="expUpiId" placeholder="merchant@okaxis or leave blank to scan in GPay">
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-4">
+                                <label class="ft-metric-label" for="expCategory">Category</label>
+                                <select class="ft-inline-select" id="expCategory" required>
                                     <option value="Food">Food</option>
                                     <option value="Travel">Travel</option>
                                     <option value="Shopping">Shopping</option>
@@ -523,35 +1060,169 @@
                                     <option value="Others">Others</option>
                                 </select>
                             </div>
-                            <div class="col-6">
-                                <label class="form-label text-muted">Payment Method</label>
-                                <select class="form-select" id="expMethod" required>
+                            <div class="col-4">
+                                <label class="ft-metric-label" for="expMethod">Method</label>
+                                <select class="ft-inline-select" id="expMethod" required>
+                                    <option value="Google Pay">Google Pay</option>
                                     <option value="UPI">UPI</option>
                                     <option value="Card">Card</option>
                                     <option value="Cash">Cash</option>
                                     <option value="Net Banking">Net Banking</option>
                                 </select>
                             </div>
+                            <div class="col-4">
+                                <label class="ft-metric-label" for="expDate">Date</label>
+                                <input type="date" class="ft-inline-input ft-mono" id="expDate" required>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label text-muted">Date</label>
-                            <input type="date" class="form-control" id="expDate" required>
+
+                        <!-- Action Buttons -->
+                        <div id="gpayActionBtns">
+                            <button type="button" class="ft-btn-emerald w-100 py-2" id="launchGPayBtn" onclick="initiateGooglePayRedirect()">
+                                <i class="bi bi-google"></i>
+                                <span id="launchGPayBtnText">Pay with Google Pay</span>
+                            </button>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label text-muted">Description</label>
-                            <input type="text" class="form-control" id="expDesc" placeholder="What did you pay for?" required>
+                        <div id="manualActionBtns" class="d-none">
+                            <button type="submit" class="ft-btn-primary w-100 py-2">Save Expense</button>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Save Expense</button>
                     </form>
+
+                    <!-- STEP 2: AWAITING GOOGLE PAY RETURN & MARK AS DONE -->
+                    <div id="gpayVerifyStep" class="d-none py-2">
+                        <div class="p-3 mb-3" style="border: 1px solid var(--ft-border); border-radius: 8px;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="ft-metric-label mb-0 ft-positive">Redirected to Google Pay</span>
+                                <span class="ft-pill-tag" id="verifyScopeBadge">Paying Self</span>
+                            </div>
+                            <div class="ft-hero-balance currency-symbol mb-1" style="font-size: 2rem;" id="verifyAmountDisplay">0.00</div>
+                            <div class="small fw-medium" id="verifyDescDisplay">Merchant Payment</div>
+                            <div class="small ft-secondary-text mt-2">
+                                Complete the transaction in the Google Pay Android app, then return to FinTrack and tap <strong>Mark as Done</strong> below.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="button" class="ft-btn-emerald w-100 py-2" id="markPaymentDoneBtn" onclick="confirmGooglePayDone()">
+                                <i class="bi bi-check2-circle"></i> Mark as Done
+                            </button>
+                            <div class="d-flex gap-2">
+                                <a href="tez://upi/pay" id="reopenGPayLink" class="ft-btn-ghost w-50 text-decoration-none">
+                                    <i class="bi bi-box-arrow-up-right"></i> Re-open GPay
+                                </a>
+                                <button type="button" class="ft-btn-ghost w-50" onclick="backToPaymentStep1()">
+                                    Edit Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: GROUP PAY SPLIT CONFIGURATION (AFTER MARK AS DONE FOR GROUP) -->
+                    <div id="groupSplitStep" class="d-none py-1">
+                        <div class="d-flex justify-content-between align-items-baseline pb-3 mb-3 ft-hairline-bottom">
+                            <div>
+                                <div class="ft-metric-label mb-0">Group Bill Paid</div>
+                                <div class="ft-sub-metric currency-symbol" id="splitTotalBillDisplay">0.00</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="ft-metric-label mb-0">Your Expense Share</div>
+                                <div class="ft-sub-metric ft-positive currency-symbol" id="splitUserExpensePreview">0.00</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 align-items-end mb-3">
+                            <div class="col-7">
+                                <label class="ft-metric-label" for="splitNumPersons">Number of Persons</label>
+                                <input type="number" class="ft-inline-input ft-mono" id="splitNumPersons" min="2" max="30" value="2" oninput="handlePersonCountChange()">
+                            </div>
+                            <div class="col-5 text-end">
+                                <button type="button" class="ft-btn-ghost w-100" id="splitEquallyBtn" onclick="applyEqualSplit()">
+                                    Split Equally
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="ft-metric-label mb-2">Participant Details &amp; Individual Split Amounts</div>
+                        <div id="splitParticipantsInputs" class="d-flex flex-column gap-2 mb-3" style="max-height: 260px; overflow-y: auto; padding-right: 4px;">
+                            <!-- Dynamically generated rows for Person 1 (You) + Group Members -->
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center small mb-3 pt-2 ft-hairline-top">
+                            <span class="ft-secondary-text">Allocated Total: <strong class="ft-mono currency-symbol" id="splitAllocatedSum">0.00</strong></span>
+                            <span class="ft-mono small" id="splitDiffStatus">Balanced</span>
+                        </div>
+
+                        <button type="button" class="ft-btn-primary w-100 py-2" id="saveGroupSplitBtn" onclick="finalizeGroupSplitExpense()">
+                            Save Split &amp; Record My Share
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100; margin-bottom: 70px;">
-        <!-- Toasts injected via JS -->
+    <!-- ==============================================================
+         MODAL 2: GROUP SPLIT DETAILS POPUP MODAL (VIEW & DELETE)
+         ============================================================== -->
+    <div class="modal fade" id="splitDetailModal" tabindex="-1" aria-labelledby="splitDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content ft-modal-content">
+                <div class="modal-header border-0 pb-1">
+                    <div>
+                        <div class="ft-metric-label mb-0" id="splitPopupCategoryDate">GROUP SPLIT</div>
+                        <h5 class="modal-title fw-semibold" id="splitDetailModalLabel">Split Breakdown</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-2">
+                    <div class="ft-grid-row mb-3">
+                        <div>
+                            <div class="ft-metric-label">Total Paid (GPay)</div>
+                            <div class="ft-sub-metric currency-symbol" id="splitPopupTotal">0.00</div>
+                        </div>
+                        <div>
+                            <div class="ft-metric-label">Your Recorded Share</div>
+                            <div class="ft-sub-metric ft-positive currency-symbol" id="splitPopupUserShare">0.00</div>
+                        </div>
+                    </div>
+
+                    <div class="ft-metric-label mb-2">Participants (<span id="splitPopupCount">0</span> Persons)</div>
+                    <div id="splitPopupMembersList" class="ft-tx-list mb-4">
+                        <!-- Populated via JS -->
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 ft-hairline-top">
+                        <button type="button" class="ft-btn-danger-ghost" id="deleteSplitModalBtn">
+                            <i class="bi bi-trash me-1"></i>Delete Split Data
+                        </button>
+                        <button type="button" class="ft-btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- ==============================================================
+         MODAL 3: IN-PAGE CONFIRMATION MODAL (SANDBOX-SAFE, NO confirm())
+         ============================================================== -->
+    <div class="modal fade" id="confirmActionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content ft-modal-content">
+                <div class="modal-body p-3">
+                    <div class="ft-metric-label ft-negative mb-1" id="confirmModalTitle">Confirm Action</div>
+                    <p class="small mb-3" id="confirmModalMessage">Are you sure you want to proceed?</p>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="ft-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="ft-btn-danger-ghost" id="confirmModalAcceptBtn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast" style="z-index: 1100; margin-bottom: 74px;"></div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -559,10 +1230,23 @@
 
     <script>
         /* ==============================================================
-           PWA SERVICE WORKER REGISTRATION 
+           STORAGE HELPERS (SANDBOX SAFE WITH TRY/CATCH)
+           ============================================================== */
+        function safeGetStorage(key) {
+            try { return localStorage.getItem(key); } catch (e) { return null; }
+        }
+        function safeSetStorage(key, val) {
+            try { localStorage.setItem(key, val); } catch (e) {}
+        }
+        function safeRemoveStorage(key) {
+            try { localStorage.removeItem(key); } catch (e) {}
+        }
+
+        /* ==============================================================
+           PWA SERVICE WORKER REGISTRATION
            ============================================================== */
         const swScript = `
-            const CACHE_NAME = 'fintrack-v2';
+            const CACHE_NAME = 'fintrack-minimal-v3';
             self.addEventListener('install', event => {
                 event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['/'])));
             });
@@ -577,7 +1261,7 @@
         
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Registration failed:', err));
+                navigator.serviceWorker.register(swUrl).catch(() => {});
             });
         }
 
@@ -588,6 +1272,7 @@
             const btn = document.getElementById('installPwaBtn');
             btn.disabled = false;
             btn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') { btn.disabled = true; }
@@ -596,9 +1281,8 @@
         });
 
         /* ==============================================================
-           CORE APPLICATION LOGIC & STATE MANAGEMENT
+           APPLICATION STATE & INITIALIZATION
            ============================================================== */
-        
         const defaultData = {
             initialBalance: 0,
             monthlyIncome: 0,
@@ -608,37 +1292,47 @@
             processedBudgets: [],
             budget: { amount: 0, startDate: '', endDate: '' },
             expenses: [],
+            groupSplits: [],
+            currency: '₹',
             theme: 'light'
         };
 
-        let appData = JSON.parse(localStorage.getItem('finTrackData')) || defaultData;
-        
-        // Ensure new fields exist for legacy users
+        let appData = JSON.parse(safeGetStorage('finTrackData') || 'null') || structuredClone(defaultData);
         appData.overspentAmount = appData.overspentAmount || 0;
         appData.processedBudgets = appData.processedBudgets || [];
+        appData.currency = appData.currency || '₹';
+
+        // Sync groupSplits with standalone localStorage key 'finTrackGroupSplits'
+        const savedStandaloneSplits = JSON.parse(safeGetStorage('finTrackGroupSplits') || 'null');
+        if (Array.isArray(savedStandaloneSplits) && (!appData.groupSplits || appData.groupSplits.length === 0)) {
+            appData.groupSplits = savedStandaloneSplits;
+        }
+        appData.groupSplits = appData.groupSplits || [];
 
         let charts = { category: null, budget: null, trend: null };
+        let currentEntryMode = 'gpay'; // 'gpay' | 'manual'
+        let currentPayScope = 'self';  // 'self' | 'group'
+        let activePendingPayment = JSON.parse(safeGetStorage('finTrackPendingPayment') || 'null');
 
-        // Icons mapping for categories
-        const catIcons = {
-            'Food': '<i class="bi bi-cup-hot text-warning"></i>',
-            'Travel': '<i class="bi bi-car-front text-info"></i>',
-            'Shopping': '<i class="bi bi-bag text-primary"></i>',
-            'Entertainment': '<i class="bi bi-controller text-danger"></i>',
-            'Bills': '<i class="bi bi-receipt text-secondary"></i>',
-            'Health': '<i class="bi bi-heart-pulse text-danger"></i>',
-            'Education': '<i class="bi bi-book text-success"></i>',
-            'Others': '<i class="bi bi-box text-dark"></i>'
+        const formatMoney = (amount) => {
+            const num = Number(amount) || 0;
+            const locale = appData.currency === '$' ? 'en-US' : 'en-IN';
+            return num.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         };
 
-        const formatMoney = (amount) => Number(amount).toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
         const getTodayStr = () => new Date().toISOString().split('T')[0];
 
-        // Init Application
+        function applyCurrencySymbols() {
+            document.querySelectorAll('.currency-symbol').forEach(el => {
+                el.setAttribute('data-currency', appData.currency || '₹');
+            });
+            const sel = document.getElementById('currencySelect');
+            if (sel) sel.value = appData.currency || '₹';
+        }
+
         function initApp() {
             applyTheme(appData.theme);
             
-            // Set default dates if empty
             if (!appData.budget.startDate) {
                 const today = new Date();
                 const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -647,10 +1341,8 @@
                 appData.budget.endDate = lastDay.toISOString().split('T')[0];
             }
             
-            // Trigger rollover logic check on startup
             processRollovers();
 
-            // Populate Settings Form
             document.getElementById('setInitialBalance').value = appData.initialBalance || '';
             document.getElementById('setIncome').value = appData.monthlyIncome || '';
             document.getElementById('setSavingsGoal').value = appData.savingsGoal || '';
@@ -658,16 +1350,524 @@
             document.getElementById('setStartDate').value = appData.budget.startDate;
             document.getElementById('setEndDate').value = appData.budget.endDate;
             document.getElementById('expDate').value = getTodayStr();
-            
-            document.getElementById('filterMonth').value = getTodayStr().substring(0,7);
+            document.getElementById('filterMonth').value = getTodayStr().substring(0, 7);
+
+            // Autofocus inline amount input whenever Add Expense Modal opens
+            const addModalEl = document.getElementById('addExpenseModal');
+            addModalEl.addEventListener('shown.bs.modal', () => {
+                const amtInput = document.getElementById('expAmount');
+                if (amtInput && !document.getElementById('expenseForm').classList.contains('d-none')) {
+                    amtInput.focus();
+                }
+            });
+
+            // Detect return from Google Pay Android app via visibilitychange / window focus
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && activePendingPayment) {
+                    renderPendingBanner();
+                }
+            });
+            window.addEventListener('focus', () => {
+                if (activePendingPayment) {
+                    renderPendingBanner();
+                }
+            });
 
             checkSetup();
+            renderPendingBanner();
             updateAll();
         }
 
         function saveData() {
-            localStorage.setItem('finTrackData', JSON.stringify(appData));
+            safeSetStorage('finTrackData', JSON.stringify(appData));
+            safeSetStorage('finTrackGroupSplits', JSON.stringify(appData.groupSplits));
             updateAll();
+        }
+
+        /* ==============================================================
+           NAVIGATION & VIEW SWITCHING (3 PRIMARY TABS + SUB-VIEW)
+           ============================================================== */
+        function switchPrimaryNav(targetView) {
+            const tabMap = {
+                'dashboard': 'dashboard-tab',
+                'expenses': 'expenses-tab',
+                'settings': 'settings-tab',
+                'analytics': 'analytics-tab'
+            };
+            const triggerId = tabMap[targetView] || 'dashboard-tab';
+            const triggerEl = document.getElementById(triggerId);
+            if (triggerEl) {
+                bootstrap.Tab.getOrCreateInstance(triggerEl).show();
+            }
+
+            // Update 3-item bottom navigation active state
+            document.getElementById('navBtnOverview').classList.toggle('active', targetView === 'dashboard' || targetView === 'expenses');
+            document.getElementById('navBtnBudgets').classList.toggle('active', targetView === 'settings');
+            document.getElementById('navBtnAnalytics').classList.toggle('active', targetView === 'analytics');
+
+            if (targetView === 'analytics') {
+                renderCharts();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ==============================================================
+           GOOGLE PAY PAYMENT REDIRECT & AUTOMATIC / GROUP SPLIT FLOW
+           ============================================================== */
+        function openExpenseModal(preset) {
+            document.getElementById('expId').value = '';
+            document.getElementById('expenseForm').reset();
+            document.getElementById('expDate').value = getTodayStr();
+            document.getElementById('entryModeToggleWrap').classList.remove('d-none');
+            document.getElementById('addExpenseModalLabel').innerText = 'Pay & Track Expense';
+
+            backToPaymentStep1();
+
+            if (preset === 'group') {
+                setEntryMode('gpay');
+                setPayScope('group');
+            } else if (preset === 'manual') {
+                setEntryMode('manual');
+            } else {
+                setEntryMode('gpay');
+                setPayScope('self');
+            }
+
+            const modalEl = document.getElementById('addExpenseModal');
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        }
+
+        function setEntryMode(mode) {
+            currentEntryMode = mode;
+            document.getElementById('modeGPayBtn').classList.toggle('active', mode === 'gpay');
+            document.getElementById('modeManualBtn').classList.toggle('active', mode === 'manual');
+            document.getElementById('payScopeWrap').classList.toggle('d-none', mode !== 'gpay');
+            document.getElementById('upiFieldWrap').classList.toggle('d-none', mode !== 'gpay');
+            document.getElementById('gpayActionBtns').classList.toggle('d-none', mode !== 'gpay');
+            document.getElementById('manualActionBtns').classList.toggle('d-none', mode !== 'manual');
+
+            if (mode === 'gpay') {
+                document.getElementById('expMethod').value = 'Google Pay';
+            }
+        }
+
+        function setPayScope(scope) {
+            currentPayScope = scope;
+            document.getElementById('scopeSelfBtn').classList.toggle('active', scope === 'self');
+            document.getElementById('scopeGroupBtn').classList.toggle('active', scope === 'group');
+            document.getElementById('launchGPayBtnText').innerText =
+                scope === 'group' ? 'Pay Group Bill with Google Pay' : 'Pay with Google Pay';
+        }
+
+        function buildGooglePayDeepLink(amount, desc, upiId) {
+            const cleanAmt = Number(amount).toFixed(2);
+            const cleanDesc = encodeURIComponent(desc || 'FinTrack Expense');
+            const cleanUpi = encodeURIComponent((upiId || '').trim());
+            const currencyCode = appData.currency === '$' ? 'USD' : 'INR';
+
+            // Standard Google Pay (Tez) URI scheme on Android
+            if (cleanUpi) {
+                return `tez://upi/pay?pa=${cleanUpi}&pn=${cleanDesc}&am=${cleanAmt}&cu=${currencyCode}&tn=${cleanDesc}`;
+            }
+            return `tez://upi/pay?pn=${cleanDesc}&am=${cleanAmt}&cu=${currencyCode}&tn=${cleanDesc}`;
+        }
+
+        function initiateGooglePayRedirect() {
+            const amountVal = parseFloat(document.getElementById('expAmount').value);
+            const descVal = document.getElementById('expDesc').value.trim();
+            const catVal = document.getElementById('expCategory').value;
+            const dateVal = document.getElementById('expDate').value || getTodayStr();
+            const upiVal = document.getElementById('expUpiId').value.trim();
+
+            if (!amountVal || amountVal <= 0) {
+                showToast('Amount Required', 'Enter a valid payment amount before launching Google Pay.', 'danger');
+                document.getElementById('expAmount').focus();
+                return;
+            }
+            if (!descVal) {
+                showToast('Description Required', 'Enter a short description or merchant name.', 'danger');
+                document.getElementById('expDesc').focus();
+                return;
+            }
+
+            const deepLink = buildGooglePayDeepLink(amountVal, descVal, upiVal);
+
+            activePendingPayment = {
+                id: Date.now().toString(),
+                amount: amountVal,
+                description: descVal,
+                category: catVal,
+                method: 'Google Pay',
+                date: dateVal,
+                upiId: upiVal,
+                scope: currentPayScope,
+                deepLink: deepLink,
+                initiatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            safeSetStorage('finTrackPendingPayment', JSON.stringify(activePendingPayment));
+            renderPendingBanner();
+
+            // Transition modal to Step 2 ("Awaiting Return / Mark as Done")
+            showVerifyStepUI(activePendingPayment);
+
+            // Trigger redirect to Google Pay Android app via hidden anchor to prevent desktop page crash
+            const launchLink = document.createElement('a');
+            launchLink.href = deepLink;
+            launchLink.style.display = 'none';
+            document.body.appendChild(launchLink);
+            try {
+                launchLink.click();
+            } catch (e) {}
+            launchLink.remove();
+        }
+
+        function showVerifyStepUI(pending) {
+            document.getElementById('entryModeToggleWrap').classList.add('d-none');
+            document.getElementById('expenseForm').classList.add('d-none');
+            document.getElementById('groupSplitStep').classList.add('d-none');
+            document.getElementById('gpayVerifyStep').classList.remove('d-none');
+
+            document.getElementById('verifyScopeBadge').innerText =
+                pending.scope === 'group' ? 'Group Pay (Split)' : 'Paying Self';
+            document.getElementById('verifyAmountDisplay').innerText = formatMoney(pending.amount);
+            document.getElementById('verifyDescDisplay').innerText = `${pending.description} • ${pending.category}`;
+            document.getElementById('reopenGPayLink').setAttribute('href', pending.deepLink || 'tez://upi/pay');
+            applyCurrencySymbols();
+        }
+
+        function backToPaymentStep1() {
+            document.getElementById('entryModeToggleWrap').classList.remove('d-none');
+            document.getElementById('expenseForm').classList.remove('d-none');
+            document.getElementById('gpayVerifyStep').classList.add('d-none');
+            document.getElementById('groupSplitStep').classList.add('d-none');
+        }
+
+        function renderPendingBanner() {
+            const banner = document.getElementById('pendingGPayBanner');
+            if (!banner) return;
+            if (activePendingPayment && activePendingPayment.amount > 0) {
+                document.getElementById('bannerPendingDesc').innerText = activePendingPayment.description;
+                document.getElementById('bannerPendingAmt').innerText = `${appData.currency}${formatMoney(activePendingPayment.amount)}`;
+                banner.classList.remove('d-none');
+            } else {
+                banner.classList.add('d-none');
+            }
+        }
+
+        function resumePendingPayment() {
+            if (!activePendingPayment) return;
+            showVerifyStepUI(activePendingPayment);
+            const modalEl = document.getElementById('addExpenseModal');
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        }
+
+        function cancelPendingPayment() {
+            activePendingPayment = null;
+            safeRemoveStorage('finTrackPendingPayment');
+            renderPendingBanner();
+            showToast('Cancelled', 'Pending Google Pay session cleared.', 'info');
+        }
+
+        function confirmGooglePayDone() {
+            if (!activePendingPayment) return;
+
+            if (activePendingPayment.scope === 'self') {
+                // Record full amount directly as user's expense
+                const newExp = {
+                    id: Date.now().toString(),
+                    amount: parseFloat(activePendingPayment.amount),
+                    category: activePendingPayment.category,
+                    method: 'Google Pay',
+                    date: activePendingPayment.date,
+                    timestamp: activePendingPayment.initiatedAt || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    description: activePendingPayment.description
+                };
+                appData.expenses.push(newExp);
+                activePendingPayment = null;
+                safeRemoveStorage('finTrackPendingPayment');
+                renderPendingBanner();
+                saveData();
+                checkAlerts(newExp);
+
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('addExpenseModal'));
+                if (modalInstance) modalInstance.hide();
+                showToast('Recorded', `Google Pay expense of ${appData.currency}${formatMoney(newExp.amount)} logged.`, 'success');
+            } else {
+                // Transition to Step 3: Group Pay Split Configuration
+                openGroupSplitStep(activePendingPayment);
+            }
+        }
+
+        /* ==============================================================
+           GROUP PAY SPLIT ENGINE (STEP 3 + LOCALSTORAGE + POPUP + DELETE)
+           ============================================================== */
+        function openGroupSplitStep(pending) {
+            document.getElementById('gpayVerifyStep').classList.add('d-none');
+            document.getElementById('groupSplitStep').classList.remove('d-none');
+            document.getElementById('addExpenseModalLabel').innerText = 'Split Group Payment';
+            document.getElementById('splitTotalBillDisplay').innerText = formatMoney(pending.amount);
+            document.getElementById('splitNumPersons').value = 2;
+            applyCurrencySymbols();
+            buildParticipantRows(2, pending.amount);
+        }
+
+        function handlePersonCountChange() {
+            if (!activePendingPayment) return;
+            let count = parseInt(document.getElementById('splitNumPersons').value, 10);
+            if (isNaN(count) || count < 2) count = 2;
+            if (count > 30) count = 30;
+            buildParticipantRows(count, activePendingPayment.amount);
+        }
+
+        function buildParticipantRows(count, totalAmount) {
+            const container = document.getElementById('splitParticipantsInputs');
+            container.innerHTML = '';
+
+            const baseShare = Math.floor((totalAmount / count) * 100) / 100;
+            const firstShare = Number((totalAmount - baseShare * (count - 1)).toFixed(2));
+
+            for (let i = 0; i < count; i++) {
+                const isSelf = i === 0;
+                const defaultShare = isSelf ? firstShare : baseShare;
+                const row = document.createElement('div');
+                row.className = 'p-2 ft-hairline-bottom';
+                row.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="ft-metric-label mb-0 ${isSelf ? 'ft-positive' : ''}">
+                            ${isSelf ? 'Person 1 • You (Recorded as Your Expense)' : `Person ${i + 1}`}
+                        </span>
+                    </div>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-7">
+                            <input type="text" class="ft-inline-input split-person-name" data-index="${i}"
+                                value="${isSelf ? 'You (Self)' : ''}"
+                                placeholder="${isSelf ? 'Your Name' : `Member ${i + 1} Name & Phone/Note`}" required>
+                        </div>
+                        <div class="col-5">
+                            <input type="number" step="0.01" min="0" class="ft-inline-input ft-mono text-end split-person-amount"
+                                data-index="${i}" value="${defaultShare.toFixed(2)}" oninput="recalcSplitTotals()" required>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
+            }
+            recalcSplitTotals();
+        }
+
+        function applyEqualSplit() {
+            if (!activePendingPayment) return;
+            const amountInputs = document.querySelectorAll('.split-person-amount');
+            const count = amountInputs.length;
+            if (count === 0) return;
+
+            const total = activePendingPayment.amount;
+            const baseShare = Math.floor((total / count) * 100) / 100;
+            const firstShare = Number((total - baseShare * (count - 1)).toFixed(2));
+
+            amountInputs.forEach((inp, idx) => {
+                inp.value = (idx === 0 ? firstShare : baseShare).toFixed(2);
+            });
+            recalcSplitTotals();
+        }
+
+        function recalcSplitTotals() {
+            if (!activePendingPayment) return;
+            const amountInputs = document.querySelectorAll('.split-person-amount');
+            let sum = 0;
+            let userShare = 0;
+            amountInputs.forEach((inp, idx) => {
+                const val = parseFloat(inp.value) || 0;
+                sum += val;
+                if (idx === 0) userShare = val;
+            });
+
+            document.getElementById('splitUserExpensePreview').innerText = formatMoney(userShare);
+            document.getElementById('splitAllocatedSum').innerText = formatMoney(sum);
+
+            const diff = Number((activePendingPayment.amount - sum).toFixed(2));
+            const statusEl = document.getElementById('splitDiffStatus');
+            if (Math.abs(diff) < 0.01) {
+                statusEl.innerText = '100% Allocated';
+                statusEl.className = 'ft-mono small ft-positive';
+            } else if (diff > 0) {
+                statusEl.innerText = `${appData.currency}${formatMoney(diff)} unallocated`;
+                statusEl.className = 'ft-mono small ft-negative';
+            } else {
+                statusEl.innerText = `${appData.currency}${formatMoney(Math.abs(diff))} over total`;
+                statusEl.className = 'ft-mono small ft-negative';
+            }
+            applyCurrencySymbols();
+        }
+
+        function finalizeGroupSplitExpense() {
+            if (!activePendingPayment) return;
+
+            const nameInputs = document.querySelectorAll('.split-person-name');
+            const amountInputs = document.querySelectorAll('.split-person-amount');
+            const participants = [];
+            let sum = 0;
+            let userShare = 0;
+
+            for (let i = 0; i < amountInputs.length; i++) {
+                const nameVal = (nameInputs[i].value || '').trim() || (i === 0 ? 'You (Self)' : `Member ${i + 1}`);
+                const amtVal = parseFloat(amountInputs[i].value) || 0;
+                sum += amtVal;
+                if (i === 0) userShare = amtVal;
+                participants.push({
+                    name: nameVal,
+                    amount: amtVal,
+                    isSelf: i === 0
+                });
+            }
+
+            if (userShare <= 0) {
+                showToast('Invalid Share', 'Your personal share must be greater than 0.', 'danger');
+                return;
+            }
+
+            const splitId = 'split_' + Date.now().toString();
+            const expId = 'exp_' + Date.now().toString();
+
+            // 1. Save full Group Split record in localStorage
+            const splitRecord = {
+                id: splitId,
+                expenseId: expId,
+                description: activePendingPayment.description,
+                category: activePendingPayment.category,
+                date: activePendingPayment.date,
+                timestamp: activePendingPayment.initiatedAt || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                totalAmount: activePendingPayment.amount,
+                userShare: userShare,
+                numPersons: participants.length,
+                participants: participants
+            };
+            appData.groupSplits.unshift(splitRecord);
+
+            // 2. Record ONLY the user's split share as their personal expense
+            const userExpense = {
+                id: expId,
+                splitId: splitId,
+                amount: userShare,
+                totalGroupPaid: activePendingPayment.amount,
+                category: activePendingPayment.category,
+                method: 'Google Pay (Group Split)',
+                date: activePendingPayment.date,
+                timestamp: splitRecord.timestamp,
+                description: `${activePendingPayment.description} (Group Split • 1/${participants.length})`
+            };
+            appData.expenses.push(userExpense);
+
+            activePendingPayment = null;
+            safeRemoveStorage('finTrackPendingPayment');
+            renderPendingBanner();
+            saveData();
+            checkAlerts(userExpense);
+
+            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('addExpenseModal'));
+            if (modalInstance) modalInstance.hide();
+            showToast(
+                'Group Split Saved',
+                `Your share of ${appData.currency}${formatMoney(userShare)} (from ${appData.currency}${formatMoney(splitRecord.totalAmount)}) recorded as expense.`,
+                'success'
+            );
+        }
+
+        function renderGroupSplitsList() {
+            const listEl = document.getElementById('groupSplitsList');
+            if (!listEl) return;
+
+            if (!appData.groupSplits || appData.groupSplits.length === 0) {
+                listEl.innerHTML = `
+                    <div class="py-3 ft-secondary-text small">
+                        No group splits saved yet. Use <strong>Pay via GPay &rarr; Group Pay</strong> to split bills and track participant shares.
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = '';
+            appData.groupSplits.forEach(split => {
+                const row = document.createElement('div');
+                row.className = 'ft-split-row';
+                row.innerHTML = `
+                    <div class="ft-tx-meta" onclick="viewGroupSplitPopup('${split.id}')">
+                        <div class="ft-tx-category">
+                            <span>${escapeHtml(split.description)}</span>
+                            <span class="ft-pill-tag">${split.numPersons} persons</span>
+                        </div>
+                        <div class="ft-tx-timestamp">
+                            ${split.category} • ${split.date} • Total paid ${appData.currency}${formatMoney(split.totalAmount)}
+                        </div>
+                    </div>
+                    <div class="ft-tx-right">
+                        <div class="text-end" onclick="viewGroupSplitPopup('${split.id}')">
+                            <div class="ft-tx-amount">-${appData.currency}${formatMoney(split.userShare)}</div>
+                            <div class="ft-tx-timestamp">Your share</div>
+                        </div>
+                        <button type="button" class="ft-icon-btn is-delete" title="Delete Split Data" onclick="deleteGroupSplit('${split.id}', event)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+
+        function viewGroupSplitPopup(splitId) {
+            const split = appData.groupSplits.find(s => s.id === splitId);
+            if (!split) return;
+
+            document.getElementById('splitPopupCategoryDate').innerText = `${split.category} • ${split.date}`;
+            document.getElementById('splitDetailModalLabel').innerText = split.description;
+            document.getElementById('splitPopupTotal').innerText = formatMoney(split.totalAmount);
+            document.getElementById('splitPopupUserShare').innerText = formatMoney(split.userShare);
+            document.getElementById('splitPopupCount').innerText = split.numPersons;
+
+            const membersList = document.getElementById('splitPopupMembersList');
+            membersList.innerHTML = '';
+            (split.participants || []).forEach((person, idx) => {
+                const item = document.createElement('div');
+                item.className = 'ft-tx-item py-2';
+                item.innerHTML = `
+                    <div class="ft-tx-meta">
+                        <div class="ft-tx-category">
+                            <span>${escapeHtml(person.name)}</span>
+                            ${person.isSelf ? '<span class="ft-pill-tag ft-positive">Your Expense Share</span>' : '<span class="ft-pill-tag">Group Member</span>'}
+                        </div>
+                        <div class="ft-tx-timestamp">Participant #${idx + 1}</div>
+                    </div>
+                    <div class="ft-tx-amount ${person.isSelf ? 'ft-positive' : ''}">
+                        ${appData.currency}${formatMoney(person.amount)}
+                    </div>
+                `;
+                membersList.appendChild(item);
+            });
+
+            const delBtn = document.getElementById('deleteSplitModalBtn');
+            delBtn.onclick = () => {
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('splitDetailModal'));
+                if (modalInstance) modalInstance.hide();
+                deleteGroupSplit(split.id);
+            };
+
+            applyCurrencySymbols();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('splitDetailModal')).show();
+        }
+
+        function deleteGroupSplit(splitId, ev) {
+            if (ev) ev.stopPropagation();
+            const split = appData.groupSplits.find(s => s.id === splitId);
+            if (!split) return;
+
+            openConfirmModal(
+                'Delete Split Data',
+                `Remove "${split.description}" split details (${appData.currency}${formatMoney(split.totalAmount)}) from saved group splits?`,
+                () => {
+                    appData.groupSplits = appData.groupSplits.filter(s => s.id !== splitId);
+                    saveData();
+                    showToast('Split Deleted', 'Group split record removed from local storage.', 'info');
+                }
+            );
         }
 
         /* ==============================================================
@@ -677,10 +1877,7 @@
             const today = getTodayStr();
             const budgetKey = `${appData.budget.startDate}_${appData.budget.endDate}`;
 
-            // If budget end date has passed and we haven't processed this period yet
             if (today > appData.budget.endDate && appData.budget.amount > 0 && !appData.processedBudgets.includes(budgetKey)) {
-                
-                // 1. Calculate how much was spent during the old period
                 let spentInPeriod = 0;
                 appData.expenses.forEach(exp => {
                     if (exp.date >= appData.budget.startDate && exp.date <= appData.budget.endDate) {
@@ -688,69 +1885,63 @@
                     }
                 });
 
-                // 2. Evaluate savings vs overspending
                 const diff = appData.budget.amount - spentInPeriod;
                 if (diff > 0) {
-                    appData.savedAmount += diff; // Add to savings
-                    setTimeout(() => showToast('Budget Rolled Over', `Period ended! Unspent ₹${formatMoney(diff)} moved to your savings.`, 'success'), 1000);
+                    appData.savedAmount += diff;
+                    setTimeout(() => showToast('Budget Rolled Over', `Unspent ${appData.currency}${formatMoney(diff)} moved to savings.`, 'success'), 600);
                 } else if (diff < 0) {
-                    appData.overspentAmount += Math.abs(diff); // Add to penalty
-                    setTimeout(() => showToast('Overspending Alert', `Budget period ended. You overspent by ₹${formatMoney(Math.abs(diff))}!`, 'danger'), 1000);
+                    appData.overspentAmount += Math.abs(diff);
+                    setTimeout(() => showToast('Budget Exceeded', `Period ended over budget by ${appData.currency}${formatMoney(Math.abs(diff))}.`, 'danger'), 600);
                 }
 
-                // 3. Mark old period as processed
                 appData.processedBudgets.push(budgetKey);
                 
-                // 4. Auto-advance budget to current month
                 const now = new Date();
                 const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
                 const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
                 
                 appData.budget.startDate = firstDay;
                 appData.budget.endDate = lastDay;
-                // Note: We deliberately KEEP appData.budget.amount the same so it renews automatically.
 
-                // Update settings UI dynamically
                 const sDateInput = document.getElementById('setStartDate');
                 const eDateInput = document.getElementById('setEndDate');
-                if(sDateInput && eDateInput) {
+                if (sDateInput && eDateInput) {
                     sDateInput.value = firstDay;
                     eDateInput.value = lastDay;
                 }
-                
-                // Auto-save changes
-                localStorage.setItem('finTrackData', JSON.stringify(appData));
+                safeSetStorage('finTrackData', JSON.stringify(appData));
             }
         }
 
         function updateAll() {
+            applyCurrencySymbols();
             calculateCoreMetrics();
             renderDashboard();
+            renderGroupSplitsList();
             renderExpensesTable();
             updateInsights();
-            if(document.getElementById('analytics-tab').classList.contains('active')){
-                renderCharts();
-            }
+            renderCharts();
         }
 
         function checkSetup() {
-            if (!appData.initialBalance && !appData.budget.amount) {
-                document.getElementById('setupAlert').classList.remove('d-none');
+            const alertEl = document.getElementById('setupAlert');
+            if (!appData.initialBalance && !appData.budget.amount && appData.expenses.length === 0) {
+                alertEl.classList.remove('d-none');
             } else {
-                document.getElementById('setupAlert').classList.add('d-none');
+                alertEl.classList.add('d-none');
             }
         }
 
         /* ==============================================================
            METRICS & CALCULATIONS
            ============================================================== */
-        let metrics = { totalExp: 0, budgetExp: 0, currentMonthExp: 0, remainingBudget: 0, daysRemaining: 0, dailyLimit: 0, balance: 0 };
+        let metrics = { totalExp: 0, budgetExp: 0, currentMonthExp: 0, remainingBudget: 0, daysRemaining: 0, dailyLimit: 0, balance: 0, todayExp: 0 };
 
         function calculateCoreMetrics() {
             const today = new Date(getTodayStr());
             const endD = new Date(appData.budget.endDate);
             const startD = new Date(appData.budget.startDate);
-            const currentMonthStr = getTodayStr().substring(0, 7); // YYYY-MM
+            const currentMonthStr = getTodayStr().substring(0, 7);
             
             let budgetPeriodExpenses = 0;
             let totalOverallExpenses = 0;
@@ -759,28 +1950,22 @@
 
             appData.expenses.forEach(exp => {
                 totalOverallExpenses += Number(exp.amount);
-                
-                // Check if in current active budget period
                 const expDate = new Date(exp.date);
                 if (expDate >= startD && expDate <= endD) {
                     budgetPeriodExpenses += Number(exp.amount);
                 }
-                
-                // Check if in current calendar month
                 if (exp.date.startsWith(currentMonthStr)) {
                     currentMonthExpenses += Number(exp.amount);
                 }
-
                 if (exp.date === getTodayStr()) {
                     todayExpenses += Number(exp.amount);
                 }
             });
 
-            // Days remaining in active budget
             let daysRem = 0;
             if (today <= endD && today >= startD) {
                 const diffTime = Math.abs(endD - today);
-                daysRem = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
+                daysRem = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             } else if (today < startD) {
                 const diffTime = Math.abs(endD - startD);
                 daysRem = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -795,61 +1980,83 @@
                 remainingBudget: remBudget,
                 daysRemaining: daysRem,
                 dailyLimit: daysRem > 0 && remBudget > 0 ? (remBudget / daysRem) : 0,
-                balance: Number(appData.initialBalance) + Number(appData.monthlyIncome) - totalOverallExpenses, // Total available money historically
+                balance: Number(appData.initialBalance) + Number(appData.monthlyIncome) - totalOverallExpenses,
                 todayExp: todayExpenses
             };
         }
 
         /* ==============================================================
-           DASHBOARD RENDER
+           OVERVIEW & CHRONOLOGICAL TEXT-ONLY FEED RENDER
            ============================================================== */
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
         function renderDashboard() {
-            document.getElementById('dashTotalBalance').innerText = formatMoney(metrics.balance);
-            document.getElementById('dashRemainingBudget').innerText = formatMoney(metrics.remainingBudget);
+            const balEl = document.getElementById('dashTotalBalance');
+            balEl.innerText = formatMoney(metrics.balance);
+            balEl.classList.toggle('ft-positive', metrics.balance > 0);
+            balEl.classList.toggle('ft-negative', metrics.balance < 0);
+
+            const remEl = document.getElementById('dashRemainingBudget');
+            remEl.innerText = formatMoney(metrics.remainingBudget);
+            remEl.classList.toggle('ft-negative', metrics.remainingBudget < 0);
+            remEl.classList.toggle('ft-positive', metrics.remainingBudget > 0);
+
             document.getElementById('dashDailyLimit').innerText = formatMoney(metrics.dailyLimit);
             document.getElementById('dashMonthExpenses').innerText = formatMoney(metrics.currentMonthExp);
-            document.getElementById('dashDaysRemaining').innerText = metrics.daysRemaining > 0 ? `${metrics.daysRemaining} days left in budget period` : 'Budget period ended';
+            document.getElementById('dashDaysRemaining').innerText =
+                metrics.daysRemaining > 0 ? `${metrics.daysRemaining} days remaining` : 'Cycle complete';
             document.getElementById('dashOverspentAmount').innerText = formatMoney(appData.overspentAmount);
 
-            // Budget Progress
-            let budgetPct = appData.budget.amount > 0 ? (metrics.budgetExp / appData.budget.amount) * 100 : 0;
-            let pBar = document.getElementById('budgetProgressBar');
+            // Single-line horizontal budget progress bar
+            const budgetPct = appData.budget.amount > 0 ? (metrics.budgetExp / appData.budget.amount) * 100 : 0;
+            const pBar = document.getElementById('budgetProgressBar');
             pBar.style.width = `${Math.min(budgetPct, 100)}%`;
-            document.getElementById('budgetPercentageText').innerText = `${budgetPct.toFixed(1)}% used`;
-            
-            pBar.className = 'progress-bar ';
-            if (budgetPct < 75) { pBar.classList.add('bg-success'); }
-            else if (budgetPct < 90) { pBar.classList.add('bg-warning'); }
-            else { pBar.classList.add('bg-danger'); }
+            document.getElementById('budgetPercentageText').innerText = `${budgetPct.toFixed(1)}% of budget used`;
+            pBar.className = 'ft-progress-fill';
+            if (budgetPct >= 100 || metrics.remainingBudget < 0) {
+                pBar.classList.add('is-exceeded');
+            }
 
             // Savings Progress
             document.getElementById('dashSavingsGoal').innerText = formatMoney(appData.savingsGoal);
             document.getElementById('dashSavedAmount').innerText = formatMoney(appData.savedAmount);
-            let savPct = appData.savingsGoal > 0 ? (appData.savedAmount / appData.savingsGoal) * 100 : 0;
+            const savPct = appData.savingsGoal > 0 ? (appData.savedAmount / appData.savingsGoal) * 100 : 0;
             document.getElementById('savingsProgressBar').style.width = `${Math.min(savPct, 100)}%`;
+            const savPctLabel = document.getElementById('savingsPctLabel');
+            if (savPctLabel) savPctLabel.innerText = `${savPct.toFixed(0)}%`;
 
             calculateHealthScore();
 
-            // Recent Transactions
+            // Chronological Text-Only Transaction Feed (Category + Timestamp stacked on left, Amount on right)
             const recentTbody = document.getElementById('recentExpensesTable');
             recentTbody.innerHTML = '';
-            const recent = [...appData.expenses].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-            if(recent.length === 0) {
-                recentTbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted small">No transactions yet.</td></tr>';
+            const recent = [...appData.expenses].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 6);
+
+            if (recent.length === 0) {
+                recentTbody.innerHTML = '<tr><td colspan="2" class="py-4 ft-secondary-text small">No transactions logged yet.</td></tr>';
             } else {
                 recent.forEach(exp => {
+                    const timeStr = exp.timestamp ? ` • ${exp.timestamp}` : '';
                     recentTbody.innerHTML += `
                         <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-circle bg-light me-3" style="width:40px; height:40px; font-size:1.2rem;">${catIcons[exp.category] || '<i class="bi bi-tag"></i>'}</div>
-                                    <div>
-                                        <h6 class="mb-0 fw-semibold">${exp.description}</h6>
-                                        <small class="text-muted">${exp.date} • ${exp.method}</small>
+                            <td class="px-0 py-3">
+                                <div class="ft-tx-meta">
+                                    <div class="ft-tx-category">
+                                        <span>${escapeHtml(exp.category)}</span>
+                                        <span class="ft-secondary-text fw-normal">— ${escapeHtml(exp.description)}</span>
                                     </div>
+                                    <div class="ft-tx-timestamp">${exp.date}${timeStr} • ${escapeHtml(exp.method)}</div>
                                 </div>
                             </td>
-                            <td class="text-end fw-bold text-danger">-₹${formatMoney(exp.amount)}</td>
+                            <td class="px-0 py-3 text-end">
+                                <span class="ft-tx-amount">-${appData.currency}${formatMoney(exp.amount)}</span>
+                            </td>
                         </tr>
                     `;
                 });
@@ -858,74 +2065,90 @@
 
         function calculateHealthScore() {
             let score = 100;
-            if (appData.budget.amount <= 0) { score = 0; } 
-            else {
+            if (appData.budget.amount <= 0 && appData.initialBalance <= 0) {
+                score = 100;
+            } else {
                 if (metrics.remainingBudget < 0) score -= 40;
-                else if (metrics.budgetExp > appData.budget.amount * 0.9) score -= 20;
+                else if (appData.budget.amount > 0 && metrics.budgetExp > appData.budget.amount * 0.9) score -= 20;
 
                 if (metrics.todayExp > metrics.dailyLimit && metrics.dailyLimit > 0) score -= 15;
                 if (appData.savingsGoal > 0 && appData.savedAmount >= appData.savingsGoal) score += 10;
-                if (appData.overspentAmount > 0) score -= 15; // Penalty for historical overspending
+                if (appData.overspentAmount > 0) score -= 15;
                 if (metrics.balance < 0) score -= 30;
             }
             
             score = Math.max(0, Math.min(100, score));
             
-            let hCircle = document.getElementById('healthScoreCircle');
-            let hText = document.getElementById('healthScoreText');
-            let hDesc = document.getElementById('healthScoreDesc');
+            const hCircle = document.getElementById('healthScoreCircle');
+            const hText = document.getElementById('healthScoreText');
+            const hDesc = document.getElementById('healthScoreDesc');
+            const hVal = document.getElementById('healthScoreValue');
             
-            document.getElementById('healthScoreValue').innerText = Math.round(score);
-            hCircle.className = 'health-score-circle ';
+            hVal.innerText = `${Math.round(score)}/100`;
+            hVal.className = 'ft-mono fw-semibold fs-5 ';
             
-            if (score >= 80) { hCircle.classList.add('border-success', 'text-success'); hText.innerText = 'Excellent'; hDesc.innerText = "Great job managing your budget!"; }
-            else if (score >= 60) { hCircle.classList.add('border-primary', 'text-primary'); hText.innerText = 'Good'; hDesc.innerText = "You're on track, but keep an eye on spending."; }
-            else if (score >= 40) { hCircle.classList.add('border-warning', 'text-warning'); hText.innerText = 'Average'; hDesc.innerText = "Nearing budget limits. Time to cut back."; }
-            else { hCircle.classList.add('border-danger', 'text-danger'); hText.innerText = 'Needs Improvement'; hDesc.innerText = "Critical! Heavy spending detected."; }
+            if (score >= 80) {
+                hVal.classList.add('ft-positive');
+                hText.innerText = 'Optimal';
+                hDesc.innerText = 'Spending velocity is well within your safe threshold.';
+            } else if (score >= 50) {
+                hVal.classList.add('ft-primary-text');
+                hText.innerText = 'Moderate';
+                hDesc.innerText = 'Approaching period thresholds. Monitor daily discretionary spend.';
+            } else {
+                hVal.classList.add('ft-negative');
+                hText.innerText = 'Exceeded';
+                hDesc.innerText = 'Budget limit or safe daily pace has been exceeded.';
+            }
         }
 
         function updateInsights() {
             const list = document.getElementById('insightsList');
             list.innerHTML = '';
-            let insights = [];
+            const insights = [];
 
             if (metrics.dailyLimit > 0) {
-                insights.push(`<i class="bi bi-info-circle text-primary me-2"></i> You can spend <strong>₹${formatMoney(metrics.dailyLimit)}/day</strong> to stay within budget.`);
+                insights.push(`Safe daily allowance is <strong class="ft-mono">${appData.currency}${formatMoney(metrics.dailyLimit)}</strong> for the next ${metrics.daysRemaining} days.`);
             }
             if (metrics.todayExp > metrics.dailyLimit && metrics.dailyLimit > 0) {
-                insights.push(`<i class="bi bi-exclamation-triangle text-danger me-2"></i> You exceeded today's safe limit by ₹${formatMoney(metrics.todayExp - metrics.dailyLimit)}.`);
+                insights.push(`<span class="ft-negative">Today's spend exceeded safe daily allowance by <strong class="ft-mono">${appData.currency}${formatMoney(metrics.todayExp - metrics.dailyLimit)}</strong>.</span>`);
             }
-            if (appData.budget.amount > 0 && metrics.remainingBudget < (appData.budget.amount * 0.2) && metrics.remainingBudget > 0) {
-                insights.push(`<i class="bi bi-bell text-warning me-2"></i> Only 20% of your budget remaining!`);
+            if (appData.budget.amount > 0 && metrics.remainingBudget < 0) {
+                insights.push(`<span class="ft-negative">Period budget exceeded by <strong class="ft-mono">${appData.currency}${formatMoney(Math.abs(metrics.remainingBudget))}</strong>.</span>`);
             }
-            if (appData.overspentAmount > 0) {
-                insights.push(`<i class="bi bi-shield-exclamation text-danger me-2"></i> You have a historical overspending penalty of ₹${formatMoney(appData.overspentAmount)}.`);
-            }
-            
-            // Find highest category for current month
-            let catTotals = {};
+
+            const catTotals = {};
             const currentMonthStr = getTodayStr().substring(0, 7);
             appData.expenses.forEach(e => { 
-                if(e.date.startsWith(currentMonthStr)) catTotals[e.category] = (catTotals[e.category]||0) + Number(e.amount); 
+                if (e.date.startsWith(currentMonthStr)) {
+                    catTotals[e.category] = (catTotals[e.category] || 0) + Number(e.amount);
+                }
             });
-            let highestCat = Object.keys(catTotals).reduce((a, b) => catTotals[a] > catTotals[b] ? a : b, '');
-            if (highestCat && catTotals[highestCat] > 0) {
-                let pct = (catTotals[highestCat] / metrics.currentMonthExp) * 100;
-                insights.push(`<i class="bi bi-pie-chart text-info me-2"></i> <strong>${highestCat}</strong> consumes ${pct.toFixed(0)}% of your spending this month.`);
+            const highestCat = Object.keys(catTotals).reduce((a, b) => catTotals[a] > catTotals[b] ? a : b, '');
+            if (highestCat && catTotals[highestCat] > 0 && metrics.currentMonthExp > 0) {
+                const pct = (catTotals[highestCat] / metrics.currentMonthExp) * 100;
+                insights.push(`Primary allocation: <strong>${highestCat}</strong> accounts for <span class="ft-mono">${pct.toFixed(0)}%</span> of monthly spend.`);
             }
 
-            if(insights.length === 0) insights.push("<i class='bi bi-check-circle text-success me-2'></i> Your finances are looking stable.");
+            if (insights.length === 0) {
+                insights.push('Cash flow is balanced with zero negative alerts.');
+            }
 
             insights.forEach(ins => {
-                list.innerHTML += `<li class="list-group-item bg-transparent border-0 px-0 py-2 border-bottom border-light">${ins}</li>`;
+                list.innerHTML += `<li class="py-2 ft-hairline-top">${ins}</li>`;
             });
         }
 
         /* ==============================================================
-           EXPENSES MANAGEMENT (CRUD)
+           MANUAL & EDIT EXPENSE CRUD
            ============================================================== */
         document.getElementById('expenseForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            if (currentEntryMode === 'gpay' && !document.getElementById('expId').value) {
+                initiateGooglePayRedirect();
+                return;
+            }
+
             const idInput = document.getElementById('expId').value;
             const newExp = {
                 id: idInput ? idInput : Date.now().toString(),
@@ -933,59 +2156,60 @@
                 category: document.getElementById('expCategory').value,
                 method: document.getElementById('expMethod').value,
                 date: document.getElementById('expDate').value,
-                description: document.getElementById('expDesc').value
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                description: document.getElementById('expDesc').value.trim()
             };
 
             if (idInput) {
                 const index = appData.expenses.findIndex(x => x.id === idInput);
-                appData.expenses[index] = newExp;
-                showToast('Success', 'Expense updated successfully.', 'success');
+                if (index !== -1) appData.expenses[index] = newExp;
+                showToast('Updated', 'Transaction updated.', 'success');
             } else {
                 appData.expenses.push(newExp);
-                showToast('Added', 'New expense logged.', 'success');
+                showToast('Logged', 'Expense added to ledger.', 'success');
                 checkAlerts(newExp);
             }
 
             saveData();
-            bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('addExpenseModal'));
+            if (modalInstance) modalInstance.hide();
             this.reset();
             document.getElementById('expDate').value = getTodayStr();
             document.getElementById('expId').value = '';
         });
 
         function checkAlerts(exp) {
-            calculateCoreMetrics(); 
-            if (metrics.todayExp > metrics.dailyLimit && metrics.dailyLimit > 0) {
-                showToast('Warning', `You've exceeded your daily spending limit of ₹${formatMoney(metrics.dailyLimit)}!`, 'warning');
-            }
-            const budgetPct = (metrics.budgetExp / appData.budget.amount) * 100;
-            if (budgetPct >= 100 && budgetPct - (exp.amount/appData.budget.amount*100) < 100) {
-                showToast('Budget Exceeded', `You have consumed 100% of your budget!`, 'danger');
-            } else if (budgetPct >= 90 && budgetPct - (exp.amount/appData.budget.amount*100) < 90) {
-                showToast('Budget Alert', `You have reached 90% of your budget!`, 'warning');
-            } else if (budgetPct >= 80 && budgetPct - (exp.amount/appData.budget.amount*100) < 80) {
-                showToast('Budget Alert', `You have reached 80% of your budget.`, 'info');
+            calculateCoreMetrics();
+            if (appData.budget.amount > 0) {
+                const budgetPct = (metrics.budgetExp / appData.budget.amount) * 100;
+                if (budgetPct > 100) {
+                    showToast('Budget Exceeded', `Spending has crossed 100% of your period budget.`, 'danger');
+                }
             }
         }
 
         function deleteExpense(id) {
-            if(confirm('Are you sure you want to delete this expense?')) {
+            openConfirmModal('Delete Transaction', 'Remove this expense permanently from your ledger?', () => {
                 appData.expenses = appData.expenses.filter(e => e.id !== id);
                 saveData();
-                showToast('Deleted', 'Expense removed.', 'info');
-            }
+                showToast('Deleted', 'Transaction removed.', 'info');
+            });
         }
 
         function editExpense(id) {
             const exp = appData.expenses.find(e => e.id === id);
-            if(!exp) return;
+            if (!exp) return;
+            backToPaymentStep1();
+            setEntryMode('manual');
+            document.getElementById('entryModeToggleWrap').classList.add('d-none');
+            document.getElementById('addExpenseModalLabel').innerText = 'Edit Transaction';
             document.getElementById('expId').value = exp.id;
             document.getElementById('expAmount').value = exp.amount;
             document.getElementById('expCategory').value = exp.category;
             document.getElementById('expMethod').value = exp.method;
             document.getElementById('expDate').value = exp.date;
             document.getElementById('expDesc').value = exp.description;
-            new bootstrap.Modal(document.getElementById('addExpenseModal')).show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('addExpenseModal')).show();
         }
 
         function renderExpensesTable() {
@@ -994,32 +2218,45 @@
             tbody.innerHTML = '';
             
             let filtered = [...appData.expenses];
-            
             const search = document.getElementById('searchExpense').value.toLowerCase();
             const cat = document.getElementById('filterCategory').value;
-            const month = document.getElementById('filterMonth').value; 
+            const month = document.getElementById('filterMonth').value;
 
-            if(search) filtered = filtered.filter(e => e.description.toLowerCase().includes(search) || e.amount.toString().includes(search));
-            if(cat !== 'All') filtered = filtered.filter(e => e.category === cat);
-            if(month) filtered = filtered.filter(e => e.date.startsWith(month));
+            if (search) {
+                filtered = filtered.filter(e =>
+                    e.description.toLowerCase().includes(search) ||
+                    e.category.toLowerCase().includes(search) ||
+                    e.amount.toString().includes(search)
+                );
+            }
+            if (cat !== 'All') filtered = filtered.filter(e => e.category === cat);
+            if (month) filtered = filtered.filter(e => e.date.startsWith(month));
 
-            filtered.sort((a,b) => new Date(b.date) - new Date(a.date)); 
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            if(filtered.length === 0) {
+            if (filtered.length === 0) {
                 noData.classList.remove('d-none');
             } else {
                 noData.classList.add('d-none');
                 filtered.forEach(exp => {
+                    const timeStr = exp.timestamp ? ` • ${exp.timestamp}` : '';
                     tbody.innerHTML += `
                         <tr>
-                            <td><span class="badge bg-light text-dark border"><i class="bi bi-calendar3 me-1"></i>${exp.date}</span></td>
-                            <td class="fw-semibold">${exp.description}</td>
-                            <td>${catIcons[exp.category] || ''} ${exp.category}</td>
-                            <td><small class="text-muted border rounded px-2 py-1">${exp.method}</small></td>
-                            <td class="fw-bold text-danger">-₹${formatMoney(exp.amount)}</td>
-                            <td class="text-end">
-                                <button class="btn btn-sm btn-light text-primary me-1" onclick="editExpense('${exp.id}')"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-light text-danger" onclick="deleteExpense('${exp.id}')"><i class="bi bi-trash"></i></button>
+                            <td class="px-0 py-3">
+                                <div class="ft-tx-meta">
+                                    <div class="ft-tx-category">
+                                        <span>${escapeHtml(exp.category)}</span>
+                                        <span class="ft-secondary-text fw-normal">— ${escapeHtml(exp.description)}</span>
+                                    </div>
+                                    <div class="ft-tx-timestamp">${exp.date}${timeStr} • ${escapeHtml(exp.method)}</div>
+                                </div>
+                            </td>
+                            <td class="px-0 py-3 text-end">
+                                <div class="d-inline-flex align-items-center gap-2">
+                                    <span class="ft-tx-amount">-${appData.currency}${formatMoney(exp.amount)}</span>
+                                    <button class="ft-icon-btn" type="button" title="Edit" onclick="editExpense('${exp.id}')"><i class="bi bi-pencil"></i></button>
+                                    <button class="ft-icon-btn is-delete" type="button" title="Delete" onclick="deleteExpense('${exp.id}')"><i class="bi bi-trash"></i></button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -1033,104 +2270,148 @@
         document.getElementById('resetFilters').addEventListener('click', () => {
             document.getElementById('searchExpense').value = '';
             document.getElementById('filterCategory').value = 'All';
-            document.getElementById('filterMonth').value = getTodayStr().substring(0,7);
+            document.getElementById('filterMonth').value = getTodayStr().substring(0, 7);
             renderExpensesTable();
         });
 
         /* ==============================================================
-           ANALYTICS & CHARTS
+           ANALYTICS: HORIZONTAL PROGRESS BARS & MONOCHROME SPARKLINE
            ============================================================== */
         document.getElementById('analytics-tab').addEventListener('shown.bs.tab', renderCharts);
 
         function renderCharts() {
             const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-            const textColor = isDark ? '#f8f9fa' : '#212529';
-            const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-            
-            Chart.defaults.color = textColor;
-            Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+            const primaryStroke = isDark ? '#F9FAFB' : '#1F2937';
+            const secondaryStroke = '#6B7280';
+            const trackStroke = isDark ? '#27272A' : '#E5E7EB';
 
-            let catTotals = {};
-            let dailyTotals = {};
-            const monthStr = getTodayStr().substring(0,7);
+            // 1. Update Budget vs Actual Single-Line Horizontal Progress Bar
+            document.getElementById('analyticsSpentLabel').innerText = formatMoney(metrics.budgetExp);
+            document.getElementById('analyticsBudgetLabel').innerText = formatMoney(appData.budget.amount);
+            const utilPct = appData.budget.amount > 0 ? (metrics.budgetExp / appData.budget.amount) * 100 : 0;
+            const utilBar = document.getElementById('analyticsBudgetBar');
+            utilBar.style.width = `${Math.min(utilPct, 100)}%`;
+            utilBar.className = 'ft-progress-fill';
+            if (utilPct > 100) utilBar.classList.add('is-exceeded');
+
+            // 2. Category Single-Line Horizontal Progress Bars
+            const catTotals = {};
+            const dailyTotals = {};
+            const monthStr = getTodayStr().substring(0, 7);
 
             appData.expenses.forEach(e => {
-                if(e.date >= appData.budget.startDate && e.date <= appData.budget.endDate) {
+                if (e.date >= appData.budget.startDate && e.date <= appData.budget.endDate) {
                     catTotals[e.category] = (catTotals[e.category] || 0) + Number(e.amount);
                 }
-                if(e.date.startsWith(monthStr)) {
+                if (e.date.startsWith(monthStr)) {
                     dailyTotals[e.date] = (dailyTotals[e.date] || 0) + Number(e.amount);
                 }
             });
 
-            if(charts.category) charts.category.destroy();
-            const ctxCat = document.getElementById('categoryChart').getContext('2d');
-            charts.category = new Chart(ctxCat, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(catTotals),
-                    datasets: [{
-                        data: Object.values(catTotals),
-                        backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d', '#0dcaf0', '#6610f2', '#fd7e14'],
-                        borderWidth: 2,
-                        borderColor: isDark ? '#212529' : '#fff'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
-            });
+            const catContainer = document.getElementById('categoryProgressBars');
+            catContainer.innerHTML = '';
+            const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
 
-            if(charts.budget) charts.budget.destroy();
-            const ctxBud = document.getElementById('budgetBarChart').getContext('2d');
-            charts.budget = new Chart(ctxBud, {
-                type: 'bar',
-                data: {
-                    labels: ['Budget Overview'],
-                    datasets: [
-                        { label: 'Total Budget Limit', data: [appData.budget.amount], backgroundColor: 'rgba(13, 110, 253, 0.6)', borderColor: '#0d6efd', borderWidth: 1 },
-                        { label: 'Spent in Period', data: [metrics.budgetExp], backgroundColor: 'rgba(220, 53, 69, 0.6)', borderColor: '#dc3545', borderWidth: 1 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: gridColor } }, x: { grid: { display: false } } } }
-            });
-
-            const todayDate = new Date();
-            let daysInMonth = [];
-            let trendData = [];
-            for(let i=1; i<=todayDate.getDate(); i++) {
-                let d = `${monthStr}-${i.toString().padStart(2, '0')}`;
-                daysInMonth.push(i);
-                trendData.push(dailyTotals[d] || 0);
+            if (sortedCats.length === 0) {
+                catContainer.innerHTML = '<div class="ft-secondary-text small py-2">No category spending recorded in the active period.</div>';
+            } else {
+                const totalCatSpend = sortedCats.reduce((acc, [, v]) => acc + v, 0) || 1;
+                sortedCats.forEach(([catName, amt]) => {
+                    const sharePct = (amt / totalCatSpend) * 100;
+                    catContainer.innerHTML += `
+                        <div>
+                            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                <span class="fw-medium small">${escapeHtml(catName)}</span>
+                                <span class="ft-mono small">${appData.currency}${formatMoney(amt)} <span class="ft-secondary-text">(${sharePct.toFixed(0)}%)</span></span>
+                            </div>
+                            <div class="ft-progress-track">
+                                <div class="ft-progress-fill" style="width: ${Math.min(sharePct, 100)}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
             }
 
-            if(charts.trend) charts.trend.destroy();
+            // 3. Minimalist Monochrome Sparkline for Daily Spending
+            const todayDate = new Date();
+            const daysInMonth = [];
+            const trendData = [];
+            let peakVal = 0;
+
+            for (let i = 1; i <= todayDate.getDate(); i++) {
+                const d = `${monthStr}-${i.toString().padStart(2, '0')}`;
+                daysInMonth.push(`Day ${i}`);
+                const val = dailyTotals[d] || 0;
+                if (val > peakVal) peakVal = val;
+                trendData.push(val);
+            }
+
+            document.getElementById('sparklinePeakLabel').innerText = `Peak: ${appData.currency}${formatMoney(peakVal)}`;
+
+            if (charts.trend) charts.trend.destroy();
             const ctxTrend = document.getElementById('trendChart').getContext('2d');
             charts.trend = new Chart(ctxTrend, {
                 type: 'line',
                 data: {
                     labels: daysInMonth,
                     datasets: [{
-                        label: 'Daily Spending (₹)',
+                        label: 'Spend',
                         data: trendData,
-                        borderColor: '#0dcaf0',
-                        backgroundColor: 'rgba(13, 202, 240, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#0dcaf0'
+                        borderColor: primaryStroke,
+                        backgroundColor: 'transparent',
+                        borderWidth: 1.75,
+                        fill: false,
+                        tension: 0.25,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointHoverBackgroundColor: primaryStroke
                     }]
                 },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    scales: { y: { beginAtZero: true, grid: { color: gridColor } }, x: { grid: { color: gridColor } } },
-                    plugins: { tooltip: { mode: 'index', intersect: false } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: isDark ? '#1F2937' : '#09090B',
+                            titleFont: { family: "'Inter', sans-serif" },
+                            bodyFont: { family: "'JetBrains Mono', monospace" },
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            border: { display: false },
+                            grid: { color: trackStroke, drawTicks: false },
+                            ticks: {
+                                color: secondaryStroke,
+                                font: { family: "'JetBrains Mono', monospace", size: 10 },
+                                maxTicksLimit: 4
+                            }
+                        },
+                        x: {
+                            border: { color: trackStroke },
+                            grid: { display: false },
+                            ticks: {
+                                color: secondaryStroke,
+                                font: { family: "'JetBrains Mono', monospace", size: 10 },
+                                maxTicksLimit: 6
+                            }
+                        }
+                    }
                 }
             });
         }
 
         /* ==============================================================
-           SETTINGS & DATA MANAGEMENT
+           SETTINGS, CURRENCY, SAMPLE DATA & DATA MANAGEMENT
            ============================================================== */
+        document.getElementById('currencySelect').addEventListener('change', function() {
+            appData.currency = this.value;
+            saveData();
+        });
+
         document.getElementById('settingsForm').addEventListener('submit', function(e) {
             e.preventDefault();
             appData.initialBalance = parseFloat(document.getElementById('setInitialBalance').value) || 0;
@@ -1141,30 +2422,102 @@
             const newEndDate = document.getElementById('setEndDate').value;
             const newAmt = parseFloat(document.getElementById('setBudgetAmount').value) || 0;
             
-            // Check if user manually triggered a date change that might reset the rollover lock
             if (newStartDate !== appData.budget.startDate || newEndDate !== appData.budget.endDate) {
                 appData.budget.amount = newAmt;
                 appData.budget.startDate = newStartDate;
                 appData.budget.endDate = newEndDate;
-                // If they change dates, run rollover check just in case they set a date in the past
-                processRollovers(); 
+                processRollovers();
             } else {
                 appData.budget.amount = newAmt;
             }
             
             saveData();
-            showToast('Settings Saved', 'Your account and budget have been updated.', 'success');
-            document.getElementById('dashboard-tab').click(); 
+            checkSetup();
+            showToast('Configuration Saved', 'Budget parameters updated.', 'success');
+            switchPrimaryNav('dashboard');
         });
 
+        function loadSampleData() {
+            const today = getTodayStr();
+            appData.initialBalance = 45000;
+            appData.monthlyIncome = 85000;
+            appData.savingsGoal = 25000;
+            appData.savedAmount = 12400;
+            appData.budget.amount = 30000;
+
+            const sampleSplitId = 'split_sample_1';
+            const sampleExpId = 'exp_sample_1';
+
+            appData.groupSplits = [
+                {
+                    id: sampleSplitId,
+                    expenseId: sampleExpId,
+                    description: 'Team Dinner at Paragon',
+                    category: 'Food',
+                    date: today,
+                    timestamp: '20:45',
+                    totalAmount: 2400,
+                    userShare: 600,
+                    numPersons: 4,
+                    participants: [
+                        { name: 'You (Self)', amount: 600, isSelf: true },
+                        { name: 'Arjun Nair', amount: 600, isSelf: false },
+                        { name: 'Meera K', amount: 600, isSelf: false },
+                        { name: 'Rohan V', amount: 600, isSelf: false }
+                    ]
+                }
+            ];
+
+            appData.expenses = [
+                {
+                    id: sampleExpId,
+                    splitId: sampleSplitId,
+                    amount: 600,
+                    totalGroupPaid: 2400,
+                    category: 'Food',
+                    method: 'Google Pay (Group Split)',
+                    date: today,
+                    timestamp: '20:45',
+                    description: 'Team Dinner at Paragon (Group Split • 1/4)'
+                },
+                {
+                    id: 'exp_sample_2',
+                    amount: 1450,
+                    category: 'Bills',
+                    method: 'Google Pay',
+                    date: today,
+                    timestamp: '14:10',
+                    description: 'Fiber Broadband & Utility'
+                },
+                {
+                    id: 'exp_sample_3',
+                    amount: 380,
+                    category: 'Travel',
+                    method: 'Google Pay',
+                    date: today,
+                    timestamp: '09:30',
+                    description: 'Airport Metro & Cab'
+                }
+            ];
+
+            document.getElementById('setInitialBalance').value = appData.initialBalance;
+            document.getElementById('setIncome').value = appData.monthlyIncome;
+            document.getElementById('setSavingsGoal').value = appData.savingsGoal;
+            document.getElementById('setBudgetAmount').value = appData.budget.amount;
+
+            saveData();
+            checkSetup();
+            showToast('Sample Loaded', 'Sample expenses and a Group Pay split have been loaded.', 'success');
+        }
+
         function exportData(type) {
-            if(type === 'json') {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+            if (type === 'json') {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
                 downloadFile(dataStr, `FinTrack_Backup_${getTodayStr()}.json`);
             } else if (type === 'csv') {
                 let csvContent = "data:text/csv;charset=utf-8,ID,Date,Description,Category,Method,Amount\n";
                 appData.expenses.forEach(e => {
-                    let desc = e.description.replace(/"/g, '""');
+                    const desc = String(e.description || '').replace(/"/g, '""');
                     csvContent += `${e.id},${e.date},"${desc}",${e.category},${e.method},${e.amount}\n`;
                 });
                 downloadFile(csvContent, `FinTrack_Expenses_${getTodayStr()}.csv`);
@@ -1182,52 +2535,76 @@
 
         function importData(event) {
             const file = event.target.files[0];
-            if(!file) return;
+            if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    if(imported.expenses && imported.budget) {
+                    if (imported.expenses && imported.budget) {
                         appData = imported;
+                        appData.groupSplits = imported.groupSplits || [];
                         saveData();
-                        showToast('Import Successful', 'Data restored from backup.', 'success');
-                        setTimeout(()=> location.reload(), 1500);
+                        checkSetup();
+                        showToast('Import Complete', 'Backup data restored.', 'success');
                     } else {
-                        showToast('Import Failed', 'Invalid backup file structure.', 'danger');
+                        showToast('Import Failed', 'Invalid backup structure.', 'danger');
                     }
-                } catch(err) {
-                    showToast('Error', 'Could not parse JSON file.', 'danger');
+                } catch (err) {
+                    showToast('Import Error', 'Could not parse JSON file.', 'danger');
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; 
+            event.target.value = '';
         }
 
         function clearAllData() {
-            if(confirm('WARNING: This will permanently delete all your financial data. Are you sure?')) {
-                if(confirm('Please confirm again. This action cannot be undone.')) {
-                    localStorage.removeItem('finTrackData');
-                    location.reload();
+            openConfirmModal(
+                'Wipe All Financial Data',
+                'This permanently deletes all transactions, budgets, and group split records from local storage.',
+                () => {
+                    safeRemoveStorage('finTrackData');
+                    safeRemoveStorage('finTrackGroupSplits');
+                    safeRemoveStorage('finTrackPendingPayment');
+                    appData = structuredClone(defaultData);
+                    const today = new Date();
+                    appData.budget.startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+                    appData.budget.endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+                    activePendingPayment = null;
+                    renderPendingBanner();
+                    checkSetup();
+                    updateAll();
+                    showToast('Data Wiped', 'All local storage data cleared.', 'info');
                 }
-            }
+            );
         }
 
         /* ==============================================================
-           THEME & UI UTILITIES
+           CONFIRM MODAL, THEME & MINIMALIST TOASTS
            ============================================================== */
+        function openConfirmModal(title, message, onAccept) {
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalMessage').innerText = message;
+            const modalEl = document.getElementById('confirmActionModal');
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            const acceptBtn = document.getElementById('confirmModalAcceptBtn');
+            acceptBtn.onclick = () => {
+                modalInstance.hide();
+                if (typeof onAccept === 'function') onAccept();
+            };
+            modalInstance.show();
+        }
+
         const themeBtn = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
         
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-bs-theme', theme);
-            if(theme === 'dark') {
-                themeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+            if (theme === 'dark') {
+                themeIcon.className = 'bi bi-sun';
             } else {
-                themeIcon.classList.replace('bi-sun-fill', 'bi-moon-fill');
+                themeIcon.className = 'bi bi-moon';
             }
-            if(document.getElementById('analytics-tab').classList.contains('active')){
-                renderCharts(); 
-            }
+            renderCharts();
         }
 
         themeBtn.addEventListener('click', () => {
@@ -1238,34 +2615,29 @@
 
         function showToast(title, message, type = 'primary') {
             const toastContainer = document.querySelector('.toast-container');
-            const id = 'toast' + Date.now();
-            const icon = type === 'success' ? 'bi-check-circle' : (type === 'danger' ? 'bi-exclamation-octagon' : (type==='warning' ? 'bi-exclamation-triangle' : 'bi-info-circle'));
+            const id = 'toast_' + Date.now();
+            const accentColor = type === 'success' ? 'var(--ft-emerald)' : (type === 'danger' ? 'var(--ft-red)' : 'var(--ft-text-primary)');
             
             const toastHTML = `
-                <div id="${id}" class="toast align-items-center text-bg-${type} border-0 glass-card mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                <div id="${id}" class="toast align-items-center mb-2" role="alert" aria-live="assertive" aria-atomic="true"
+                     style="background: var(--ft-surface-elevated); color: var(--ft-text-primary); border: 1px solid var(--ft-border); border-left: 3px solid ${accentColor}; border-radius: 8px; box-shadow: none;">
                     <div class="d-flex">
-                        <div class="toast-body d-flex align-items-center">
-                            <i class="bi ${icon} fs-5 me-2"></i>
-                            <div>
-                                <strong>${title}</strong><br>
-                                <span class="small">${message}</span>
-                            </div>
+                        <div class="toast-body py-2 px-3">
+                            <div class="fw-semibold small" style="color: ${accentColor};">${escapeHtml(title)}</div>
+                            <div class="small ft-secondary-text">${escapeHtml(message)}</div>
                         </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                 </div>
             `;
             toastContainer.insertAdjacentHTML('beforeend', toastHTML);
             const toastElement = document.getElementById(id);
-            const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
+            const toast = new bootstrap.Toast(toastElement, { delay: 3800 });
             toast.show();
-            
             toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
         }
 
-        // Initialize on load
         document.addEventListener('DOMContentLoaded', initApp);
-
     </script>
 </body>
 </html>
